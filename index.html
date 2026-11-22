@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PHOTO COFFEE | Coffee Identification System</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap');
+
+:root {
+    --bg: #F4F0E8;
+    --card: #FFFCF6;
+    --dark: #271B15;
+    --brown: #79513B;
+    --caramel: #C18A56;
+    --muted: #8B8177;
+    --line: #E5DCCF;
+    --green: #667D60;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--dark);
+}
+
+.layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Sidebar */
+
+.sidebar {
+    width: 255px;
+    background: var(--dark);
+    color: #F5EFE6;
+    padding: 30px 20px;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    height: 100vh;
+    z-index: 100;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    padding: 0 10px 35px;
+}
+
+.brand-icon {
+    width: 43px;
+    height: 43px;
+    background: var(--caramel);
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 23px;
+}
+
+.brand-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    letter-spacing: 1px;
+}
+
+.brand-sub {
+    font-size: 10px;
+    color: #B8A89A;
+    letter-spacing: 2px;
+    margin-top: 4px;
+}
+
+.nav-label {
+    color: #9E8C7D;
+    font-size: 10px;
+    letter-spacing: 2px;
+    padding: 15px 12px;
+}
+
+.nav-item {
+    display: flex;
+    gap: 13px;
+    align-items: center;
+    padding: 13px 15px;
+    border-radius: 10px;
+    color: #C8B9AC;
+    cursor: pointer;
+    margin-bottom: 5px;
+    font-size: 14px;
+    transition: 0.2s;
+}
+
+.nav-item:hover {
+    background: #3A2B22;
+    color: white;
+}
+
+.nav-item.active {
+    background: #60452F;
+    color: #FFF9F1;
+}
+
+.nav-icon {
+    width: 20px;
+    text-align: center;
+}
+
+.sidebar-bottom {
+    margin-top: auto;
+    padding: 15px 12px;
+    border-top: 1px solid #49372D;
+}
+
+.status {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 12px;
+    color: #B7A99A;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    background: #8CA67F;
+    border-radius: 50%;
+}
+
+/* Main content */
+
+.main {
+    margin-left: 255px;
+    width: calc(100% - 255px);
+    padding: 38px 48px;
+    max-width: 1600px;
+}
+
+.page {
+    display: none;
+    animation: fade 0.3s ease;
+}
+
+.page.active {
+    display: block;
+}
+
+@keyframes fade {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.breadcrumb {
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.top-tag {
+    background: #E8E0D4;
+    padding: 9px 13px;
+    border-radius: 20px;
+    font-size: 11px;
+    color: var(--brown);
+}
+
+h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 34px;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    color: var(--muted);
+    font-size: 14px;
+    margin-bottom: 30px;
+    line-height: 1.7;
+}
+
+.section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    margin-bottom: 18px;
+}
+
+.card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 17px;
+    padding: 23px;
+}
+
+.grid {
+    display: grid;
+    gap: 17px;
+}
+
+.grid-4 {
+    grid-template-columns: repeat(4, 1fr);
+}
+
+.grid-3 {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.grid-2 {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.metric-label {
+    color: var(--muted);
+    font-size: 12px;
+    margin-bottom: 12px;
+}
+
+.metric-value {
+    font-size: 27px;
+    font-weight: 700;
+}
+
+.metric-foot {
+    color: var(--green);
+    font-size: 11px;
+    margin-top: 9px;
+}
+
+.hero {
+    background: linear-gradient(125deg, #38271C, #6A4B34);
+    color: #FFF9F1;
+    padding: 38px;
+    border-radius: 20px;
+    margin-bottom: 25px;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero::after {
+    content: "☕";
+    position: absolute;
+    font-size: 150px;
+    right: 40px;
+    top: -15px;
+    opacity: 0.09;
+}
+
+.hero-tag {
+    color: #D5B28C;
+    font-size: 11px;
+    letter-spacing: 2px;
+    margin-bottom: 17px;
+}
+
+.hero h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 34px;
+    margin-bottom: 12px;
+    max-width: 600px;
+}
+
+.hero p {
+    color: #D6C7B8;
+    font-size: 13px;
+    line-height: 1.8;
+    max-width: 550px;
+}
+
+.btn {
+    background: var(--brown);
+    border: none;
+    color: white;
+    padding: 12px 18px;
+    border-radius: 10px;
+    font-family: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn:hover {
+    background: #5E3C28;
+    transform: translateY(-1px);
+}
+
+.btn-light {
+    background: #EDE4D8;
+    color: var(--brown);
+}
+
+.btn-light:hover {
+    background: #E2D4C4;
+}
+
+.hero .btn {
+    margin-top: 22px;
+    background: #C18A56;
+    color: #241910;
+}
+
+.class-card {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.coffee-icon {
+    width: 53px;
+    height: 53px;
+    background: #EFE5D7;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 27px;
+}
+
+.class-card h3 {
+    font-size: 15px;
+    margin-bottom: 5px;
+}
+
+.class-card p {
+    font-size: 11px;
+    color: var(--muted);
+}
+
+.workflow {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.workflow-step {
+    flex: 1;
+    padding: 18px;
+    border: 1px solid var(--line);
+    background: var(--card);
+    border-radius: 13px;
+}
+
+.step-number {
+    color: var(--caramel);
+    font-size: 12px;
+    font-weight: bold;
+    margin-bottom: 12px;
+}
+
+.workflow-step h4 {
+    font-size: 13px;
+    margin-bottom: 8px;
+}
+
+.workflow-step p {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.7;
+}
+
+/* Scanner */
+
+.upload-box {
+    border: 2px dashed #D9CBBB;
+    background: #FAF7F1;
+    padding: 38px 20px;
+    border-radius: 15px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.upload-icon {
+    font-size: 37px;
+    margin-bottom: 12px;
+}
+
+.upload-box h3 {
+    font-size: 16px;
+    margin-bottom: 8px;
+}
+
+.upload-box p {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 18px;
+}
+
+input[type="file"] {
+    max-width: 100%;
+    font-family: inherit;
+    font-size: 12px;
+}
+
+.preview {
+    max-width: 100%;
+    max-height: 420px;
+    border-radius: 12px;
+    margin-top: 18px;
+    object-fit: contain;
+}
+
+.result-box {
+    margin-top: 22px;
+    padding: 20px;
+    background: #F0E8DC;
+    border-radius: 14px;
+}
+
+.result-class {
+    font-family: 'Playfair Display', serif;
+    font-size: 30px;
+    margin: 8px 0;
+}
+
+.confidence-bar {
+    width: 100%;
+    height: 10px;
+    background: #DCD0C1;
+    border-radius: 20px;
+    margin-top: 12px;
+    overflow: hidden;
+}
+
+.confidence-fill {
+    height: 100%;
+    background: var(--caramel);
+    border-radius: 20px;
+}
+
+.note {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.7;
+    margin-top: 15px;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+
+.table th, .table td {
+    padding: 13px 10px;
+    text-align: left;
+    border-bottom: 1px solid var(--line);
+}
+
+.table th {
+    color: var(--muted);
+    font-weight: 500;
+}
+
+.bar-row {
+    margin: 17px 0;
+}
+
+.bar-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    margin-bottom: 7px;
+}
+
+.bar {
+    height: 9px;
+    border-radius: 20px;
+    background: #E9E0D5;
+    overflow: hidden;
+}
+
+.bar-fill {
+    height: 100%;
+    background: var(--caramel);
+    border-radius: 20px;
+}
+
+.about-box {
+    line-height: 1.8;
+    color: #65574C;
+    font-size: 13px;
+}
+
+.about-box h3 {
+    color: var(--dark);
+    margin: 20px 0 10px;
+}
+
+.footer {
+    border-top: 1px solid var(--line);
+    margin-top: 45px;
+    padding-top: 20px;
+    color: var(--muted);
+    font-size: 11px;
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+}
+
+.mobile-menu {
+    display: none;
+}
+
+/* Mobile responsiveness */
+
+@media(max-width: 1050px) {
+    .main {
+        padding: 30px;
+    }
+
+    .grid-4 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .workflow {
+        flex-wrap: wrap;
+    }
+
+    .workflow-step {
+        min-width: 40%;
+    }
+}
+
+@media(max-width: 700px) {
+    .sidebar {
+        width: 75px;
+        padding: 20px 10px;
+    }
+
+    .brand {
+        justify-content: center;
+        padding: 0 0 25px;
+    }
+
+    .brand-text,
+    .nav-label,
+    .nav-text,
+    .sidebar-bottom {
+        display: none;
+    }
+
+    .brand-icon {
+        width: 45px;
+        height: 45px;
+    }
+
+    .nav-item {
+        justify-content: center;
+        padding: 15px 8px;
+    }
+
+    .nav-icon {
+        font-size: 18px;
+    }
+
+    .main {
+        margin-left: 75px;
+        width: calc(100% - 75px);
+        padding: 22px 16px;
+    }
+
+    h1 {
+        font-size: 27px;
+    }
+
+    .hero {
+        padding: 25px;
+    }
+
+    .hero h2 {
+        font-size: 25px;
+    }
+
+    .grid-4, .grid-3, .grid-2 {
+        grid-template-columns: 1fr;
+    }
+
+    .workflow-step {
+        min-width: 100%;
+    }
+
+    .top-tag {
+        display: none;
+    }
+
+    .footer {
+        flex-direction: column;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="layout">
+
+<!-- Sidebar navigation -->
+<aside class="sidebar">
+
+    <div class="brand">
+        <div class="brand-icon">☕</div>
+        <div class="brand-text">
+            <div class="brand-name">PHOTO COFFEE</div>
+            <div class="brand-sub">COFFEE IDENTIFICATION</div>
+        </div>
+    </div>
+
+    <div class="nav-label">MAIN MENU</div>
+
+    <div class="nav-item active" onclick="navigate('dashboard', this)">
+        <span class="nav-icon">⌂</span>
+        <span class="nav-text">Dashboard</span>
+    </div>
+
+    <div class="nav-item" onclick="navigate('scanner', this)">
+        <span class="nav-icon">⌕</span>
+        <span class="nav-text">Coffee Scanner</span>
+    </div>
+
+    <div class="nav-item" onclick="navigate('analytics', this)">
+        <span class="nav-icon">▥</span>
+        <span class="nav-text">Analytics</span>
+    </div>
+
+    <div class="nav-item" onclick="navigate('history', this)">
+        <span class="nav-icon">◷</span>
+        <span class="nav-text">History</span>
+    </div>
+
+    <div class="nav-item" onclick="navigate('about', this)">
+        <span class="nav-icon">ⓘ</span>
+        <span class="nav-text">About System</span>
+    </div>
+
+    <div class="sidebar-bottom">
+        <div class="status">
+            <span class="status-dot"></span>
+            <span>Web Interface Online</span>
+        </div>
+    </div>
+
+</aside>
+
+<!-- Main area -->
+<main class="main">
+
+<div class="topbar">
+    <div class="breadcrumb">PHOTO COFFEE / <span id="breadcrumb">DASHBOARD</span></div>
+    <div class="top-tag">COFFEE AI TECHNOLOGY</div>
+</div>
+
+<!-- Dashboard page -->
+<section id="dashboard" class="page active">
+
+    <h1>Dashboard Overview</h1>
+    <p class="subtitle">Coffee identification and visual analysis system.</p>
+
+    <div class="hero">
+        <div class="hero-tag">COFFEE IDENTIFICATION SYSTEM</div>
+        <h2>Discover the Identity<br>of Your Coffee.</h2>
+        <p>
+            An image-based coffee classification platform designed to explore
+            the visual characteristics of Arabika, Ekselsa, Liberika, and Robusta
+            coffee beans through digital image processing and computer vision.
+        </p>
+        <button class="btn" onclick="navigateById('scanner')">Open Coffee Scanner →</button>
+    </div>
+
+    <div class="grid grid-4" style="margin-bottom:28px">
+
+        <div class="card">
+            <div class="metric-label">Coffee Varieties</div>
+            <div class="metric-value">04</div>
+            <div class="metric-foot">Supported classes</div>
+        </div>
+
+        <div class="card">
+            <div class="metric-label">Technology</div>
+            <div class="metric-value">YOLOv8</div>
+            <div class="metric-foot">Segmentation-based concept</div>
+        </div>
+
+        <div class="card">
+            <div class="metric-label">System</div>
+            <div class="metric-value">AI Vision</div>
+            <div class="metric-foot">Computer vision platform</div>
+        </div>
+
+        <div class="card">
+            <div class="metric-label">Interface</div>
+            <div class="metric-value">Web App</div>
+            <div class="metric-foot">Responsive interface</div>
+        </div>
+
+    </div>
+
+    <h2 class="section-title">Coffee Varieties</h2>
+
+    <div class="grid grid-2" style="margin-bottom:28px">
+
+        <div class="card class-card">
+            <div class="coffee-icon">☕</div>
+            <div>
+                <h3>Arabika</h3>
+                <p>Coffea arabica</p>
+            </div>
+        </div>
+
+        <div class="card class-card">
+            <div class="coffee-icon">🫘</div>
+            <div>
+                <h3>Ekselsa</h3>
+                <p>Coffea excelsa</p>
+            </div>
+        </div>
+
+        <div class="card class-card">
+            <div class="coffee-icon">🌿</div>
+            <div>
+                <h3>Liberika</h3>
+                <p>Coffea liberica</p>
+            </div>
+        </div>
+
+        <div class="card class-card">
+            <div class="coffee-icon">🍂</div>
+            <div>
+                <h3>Robusta</h3>
+                <p>Coffea canephora</p>
+            </div>
+        </div>
+
+    </div>
+
+    <h2 class="section-title">System Workflow</h2>
+
+    <div class="workflow">
+
+        <div class="workflow-step">
+            <div class="step-number">STEP 01</div>
+            <h4>Image Input</h4>
+            <p>Upload coffee bean imagery for visual analysis.</p>
+        </div>
+
+        <div class="workflow-step">
+            <div class="step-number">STEP 02</div>
+            <h4>Image Processing</h4>
+            <p>Image preparation and visual feature analysis.</p>
+        </div>
+
+        <div class="workflow-step">
+            <div class="step-number">STEP 03</div>
+            <h4>Classification</h4>
+            <p>Visual identification of coffee varieties.</p>
+        </div>
+
+        <div class="workflow-step">
+            <div class="step-number">STEP 04</div>
+            <h4>Visualization</h4>
+            <p>Present detection information and results.</p>
+        </div>
+
+    </div>
+
+</section>
+
+<!-- Coffee scanner page -->
+<section id="scanner" class="page">
+
+    <h1>Coffee Scanner</h1>
+    <p class="subtitle">Upload a coffee bean image to explore the scanner interface.</p>
+
+    <div class="card">
+
+        <div class="upload-box">
+            <div class="upload-icon">📷</div>
+            <h3>Upload Coffee Image</h3>
+            <p>Select an image file to preview the scanner interface.</p>
+            <input type="file" id="imageInput" accept="image/*">
+            <div id="previewContainer"></div>
+        </div>
+
+        <button class="btn" onclick="scanImage()">Analyze Image</button>
+        <button class="btn btn-light" onclick="resetScanner()">Reset</button>
+
+        <div id="scanResult"></div>
+
+    </div>
+
+    <div class="card" style="margin-top:20px">
+        <h3 style="margin-bottom:10px">Scanner Information</h3>
+        <p class="note">
+            This GitHub Pages version is a frontend demonstration.
+            The uploaded image is previewed locally in your browser.
+            Classification results shown in demo mode are randomly generated
+            and are not predictions from the trained YOLOv8 model.
+        </p>
+    </div>
+
+</section>
+
+<!-- Analytics page -->
+<section id="analytics" class="page">
+
+    <h1>Analytics</h1>
+    <p class="subtitle">Visual overview of coffee classification categories.</p>
+
+    <div class="grid grid-4" style="margin-bottom:25px">
+
+        <div class="card">
+            <div class="metric-label">Classes</div>
+            <div class="metric-value">4</div>
+        </div>
+
+        <div class="card">
+            <div class="metric-label">Model Concept</div>
+            <div class="metric-value">YOLOv8</div>
+        </div>
+
+        <div class="card">
+            <div class="metric-label">Analysis</div>
+            <div class="metric-value">Visual</div>
+        </div>
+
+        <div class="card">
+            <div class="metric-label">Platform</div>
+            <div class="metric-value">Web</div>
+        </div>
+
+    </div>
+
+    <div class="card">
+        <h2 class="section-title">Coffee Categories</h2>
+
+        <div class="bar-row">
+            <div class="bar-label"><span>Arabika</span><span>Class 01</span></div>
+            <div class="bar"><div class="bar-fill" style="width:85%"></div></div>
+        </div>
+
+        <div class="bar-row">
+            <div class="bar-label"><span>Ekselsa</span><span>Class 02</span></div>
+            <div class="bar"><div class="bar-fill" style="width:70%"></div></div>
+        </div>
+
+        <div class="bar-row">
+            <div class="bar-label"><span>Liberika</span><span>Class 03</span></div>
+            <div class="bar"><div class="bar-fill" style="width:65%"></div></div>
+        </div>
+
+        <div class="bar-row">
+            <div class="bar-label"><span>Robusta</span><span>Class 04</span></div>
+            <div class="bar"><div class="bar-fill" style="width:80%"></div></div>
+        </div>
+
+        <p class="note">
+            The visual bars above are illustrative UI elements, not model
+            evaluation metrics or measured class performance.
+        </p>
+    </div>
+
+</section>
+
+<!-- History page -->
+<section id="history" class="page">
+
+    <h1>Detection History</h1>
+    <p class="subtitle">Recent images analyzed during this browser session.</p>
+
+    <div class="card">
+
+        <div id="historyContent">
+            <p class="note">No images have been analyzed during this session.</p>
+        </div>
+
+        <button class="btn btn-light" onclick="clearHistory()" style="margin-top:20px">
+            Clear History
+        </button>
+
+    </div>
+
+</section>
+
+<!-- About page -->
+<section id="about" class="page">
+
+    <h1>About System</h1>
+    <p class="subtitle">An introduction to the PHOTO COFFEE project.</p>
+
+    <div class="card about-box">
+
+        <h2 class="section-title">PHOTO COFFEE</h2>
+
+        <p>
+            PHOTO COFFEE is a coffee identification system concept developed
+            using digital image processing, computer vision, and deep learning.
+            The project focuses on visual identification of coffee bean varieties.
+        </p>
+
+        <h3>Research Objective</h3>
+
+        <p>
+            To explore the development of a computer vision-based system for
+            identifying Arabika, Ekselsa, Liberika, and Robusta coffee beans
+            through digital images.
+        </p>
+
+        <h3>Classification Categories</h3>
+
+        <p>
+            Arabika, Ekselsa, Liberika, and Robusta.
+        </p>
+
+        <h3>Technology</h3>
+
+        <p>
+            Python, YOLOv8 Segmentation, Digital Image Processing,
+            Computer Vision, and Web Interface.
+        </p>
+
+        <h3>Research Development</h3>
+
+        <p>
+            This project is part of an undergraduate research development
+            initiative in Food Science and Technology, integrating agricultural
+            commodities with artificial intelligence and visual analysis.
+        </p>
+
+    </div>
+
+</section>
+
+<footer class="footer">
+    <span>PHOTO COFFEE · Coffee Identification System</span>
+    <span>Digital Image Processing & Computer Vision</span>
+</footer>
+
+</main>
+</div>
+
+<script>
+
+/* Navigation */
+function navigate(page, element) {
+
+    document.querySelectorAll('.page').forEach(function(p) {
+        p.classList.remove('active');
+    });
+
+    document.querySelectorAll('.nav-item').forEach(function(n) {
+        n.classList.remove('active');
+    });
+
+    document.getElementById(page).classList.add('active');
+
+    if (element) {
+        element.classList.add('active');
+    }
+
+    document.getElementById('breadcrumb').textContent =
+        page.replace('-', ' ').toUpperCase();
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function navigateById(page) {
+    const navItems = document.querySelectorAll('.nav-item');
+
+    navItems.forEach(function(item) {
+        item.classList.remove('active');
+    });
+
+    document.querySelectorAll('.page').forEach(function(p) {
+        p.classList.remove('active');
+    });
+
+    document.getElementById(page).classList.add('active');
+
+    document.getElementById('breadcrumb').textContent =
+        page.toUpperCase();
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* Image preview */
+const imageInput = document.getElementById('imageInput');
+
+imageInput.addEventListener('change', function(event) {
+
+    const file = event.target.files[0];
+
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = function(e) {
+
+        document.getElementById('previewContainer').innerHTML = `
+            <img src="${e.target.result}" class="preview" id="previewImage">
+        `;
+
+        document.getElementById('scanResult').innerHTML = '';
+
+    };
+
+    reader.readAsDataURL(file);
+});
+
+/* Demonstration scanner */
+function scanImage() {
+
+    const file = imageInput.files[0];
+
+    if (!file) {
+        alert('Please upload an image first.');
+        return;
+    }
+
+    const classes = ['Arabika', 'Ekselsa', 'Liberika', 'Robusta'];
+
+    const randomClass = classes[Math.floor(Math.random() * classes.length)];
+
+    const confidence = (80 + Math.random() * 19).toFixed(2);
+
+    document.getElementById('scanResult').innerHTML = `
+        <div class="result-box">
+            <div class="metric-label">DEMO RESULT · NOT AI PREDICTION</div>
+            <div class="result-class">${randomClass}</div>
+            <div>Illustrative score: ${confidence}%</div>
+
+            <div class="confidence-bar">
+                <div class="confidence-fill" style="width:${confidence}%"></div>
+            </div>
+
+            <p class="note">
+                This result is randomly generated for interface demonstration.
+            </p>
+        </div>
+    `;
+
+    saveHistory(file, randomClass, confidence);
+
+}
+
+/* Browser session history */
+function saveHistory(file, predictedClass, confidence) {
+
+    const reader = new FileReader();
+
+    reader.onload = function(e) {
+
+        const entry = {
+            name: file.name,
+            image: e.target.result,
+            className: predictedClass,
+            confidence: confidence,
+            time: new Date().toLocaleString()
+        };
+
+        let history = JSON.parse(sessionStorage.getItem('coffeeHistory') || '[]');
+
+        history.unshift(entry);
+
+        history = history.slice(0, 10);
+
+        sessionStorage.setItem('coffeeHistory', JSON.stringify(history));
+
+        renderHistory();
+    };
+
+    reader.readAsDataURL(file);
+}
+
+function renderHistory() {
+
+    const history = JSON.parse(sessionStorage.getItem('coffeeHistory') || '[]');
+
+    const container = document.getElementById('historyContent');
+
+    if (history.length === 0) {
+        container.innerHTML = '<p class="note">No images analyzed during this session.</p>';
+        return;
+    }
+
+    container.innerHTML = history.map(function(item) {
+
+        return `
+            <div style="display:flex;gap:15px;align-items:center;padding:15px 0;border-bottom:1px solid var(--line)">
+                <img src="${item.image}" style="width:75px;height:75px;object-fit:cover;border-radius:10px">
+                <div>
+                    <strong>${item.name}</strong>
+                    <p style="font-size:12px;margin-top:6px">Demo class: ${item.className}</p>
+                    <p style="font-size:11px;color:var(--muted);margin-top:4px">${item.confidence}% · ${item.time}</p>
+                </div>
+            </div>
+        `;
+
+    }).join('');
+}
+
+function clearHistory() {
+
+    sessionStorage.removeItem('coffeeHistory');
+
+    renderHistory();
+
+}
+
+function resetScanner() {
+
+    imageInput.value = '';
+
+    document.getElementById('previewContainer').innerHTML = '';
+
+    document.getElementById('scanResult').innerHTML = '';
+
+}
+
+/* Initialize history */
+renderHistory();
+
+</script>
+
+</body>
+</html>
