@@ -1,2296 +1,1136 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <!-- =====================================
-         1. BASIC HTML CONFIGURATION
-         ===================================== -->
-
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>PHOTO COFFEE | Coffee Identification System</title>
-
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
-
-
-    <!-- =====================================
-         2. CSS DESIGN
-         Mengatur tampilan seluruh website
-         ===================================== -->
-
-    <style>
-
-        /* Color palette PHOTO COFFEE */
-        :root {
-            --cream: #F5F1E8;
-            --white: #FFFEFA;
-            --brown: #79513A;
-            --dark: #34241B;
-            --caramel: #C28A57;
-            --green: #667D60;
-            --light-green: #E7EDE3;
-            --muted: #93877D;
-            --border: #E8DED1;
-            --shadow: 0 10px 35px rgba(52,36,27,.07);
-        }
-
-        /* Reset default browser styling */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'DM Sans', sans-serif;
-            background: var(--cream);
-            color: var(--dark);
-        }
-
-        button, input, select {
-            font-family: inherit;
-        }
-
-        /* Main page layout */
-        .layout {
-            display: flex;
-            min-height: 100vh;
-        }
-
-        /* =====================================
-           SIDEBAR NAVIGATION
-           ===================================== */
-
-        .sidebar {
-            width: 255px;
-            background: var(--dark);
-            color: white;
-            padding: 30px 20px;
-            position: fixed;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            z-index: 20;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 0 10px;
-            margin-bottom: 48px;
-        }
-
-        .logo-icon {
-            width: 43px;
-            height: 43px;
-            background: var(--caramel);
-            border-radius: 13px;
-            display: grid;
-            place-items: center;
-            font-size: 23px;
-        }
-
-        .logo h2 {
-            font-family: 'Playfair Display', serif;
-            font-size: 19px;
-            letter-spacing: 1px;
-        }
-
-        .logo p {
-            font-size: 9px;
-            color: #C9B9A8;
-            letter-spacing: 2px;
-            margin-top: 3px;
-        }
-
-        .nav-label {
-            font-size: 10px;
-            color: #A99583;
-            letter-spacing: 2px;
-            margin: 0 12px 14px;
-        }
-
-        .nav-item {
-            width: 100%;
-            display: flex;
-            align-items: center;
-            gap: 13px;
-            border: 0;
-            padding: 14px 15px;
-            margin-bottom: 7px;
-            border-radius: 11px;
-            background: transparent;
-            color: #D9CCBF;
-            cursor: pointer;
-            font-size: 13px;
-            text-align: left;
-            transition: .2s;
-        }
-
-        .nav-item:hover,
-        .nav-item.active {
-            background: #59402F;
-            color: white;
-        }
-
-        .nav-item.active {
-            border-left: 3px solid var(--caramel);
-        }
-
-        .nav-icon {
-            font-size: 18px;
-            width: 22px;
-        }
-
-        .sidebar-bottom {
-            margin-top: auto;
-            border-top: 1px solid #59483B;
-            padding: 20px 10px 0;
-        }
-
-        .system-status {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 11px;
-            color: #D9CCBF;
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #D5A56C;
-        }
-
-        /* =====================================
-           MAIN CONTENT
-           ===================================== */
-
-        .main {
-            margin-left: 255px;
-            width: calc(100% - 255px);
-            padding: 30px 42px;
-        }
-
-        .topbar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 35px;
-        }
-
-        .breadcrumb {
-            color: var(--muted);
-            font-size: 12px;
-        }
-
-        .topbar h1 {
-            font-family: 'Playfair Display', serif;
-            font-size: 27px;
-            margin-top: 5px;
-        }
-
-        .api-badge {
-            padding: 9px 13px;
-            background: white;
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            font-size: 11px;
-            color: var(--muted);
-        }
-
-        /* =====================================
-           GENERAL COMPONENTS
-           ===================================== */
-
-        .page {
-            display: none;
-        }
-
-        .page.active {
-            display: block;
-        }
-
-        .section-heading {
-            margin-bottom: 22px;
-        }
-
-        .section-heading h2 {
-            font-family: 'Playfair Display', serif;
-            font-size: 23px;
-        }
-
-        .section-heading p {
-            color: var(--muted);
-            font-size: 12px;
-            margin-top: 6px;
-        }
-
-        .card {
-            background: var(--white);
-            border: 1px solid var(--border);
-            border-radius: 17px;
-            padding: 23px;
-            box-shadow: var(--shadow);
-        }
-
-        .grid {
-            display: grid;
-            gap: 20px;
-        }
-
-        .stats-grid {
-            grid-template-columns: repeat(4, 1fr);
-            margin-bottom: 25px;
-        }
-
-        .stat-card .stat-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
-            display: grid;
-            place-items: center;
-            background: var(--light-green);
-            font-size: 19px;
-            margin-bottom: 18px;
-        }
-
-        .stat-card h3 {
-            font-size: 27px;
-            margin-bottom: 5px;
-        }
-
-        .stat-card p {
-            font-size: 11px;
-            color: var(--muted);
-        }
-
-        .stat-card small {
-            display: block;
-            margin-top: 12px;
-            color: var(--green);
-            font-size: 10px;
-        }
-
-        .dashboard-grid {
-            grid-template-columns: 1.4fr 1fr;
-        }
-
-        /* Dashboard welcome banner */
-        .welcome-card {
-            background: var(--dark);
-            color: white;
-            padding: 32px;
-            min-height: 220px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .welcome-card h2 {
-            font-family: 'Playfair Display', serif;
-            font-size: 29px;
-            max-width: 420px;
-            line-height: 1.3;
-        }
-
-        .welcome-card p {
-            color: #D3C3B5;
-            font-size: 12px;
-            line-height: 1.8;
-            margin-top: 13px;
-            max-width: 420px;
-        }
-
-        .coffee-decoration {
-            position: absolute;
-            right: 30px;
-            bottom: 5px;
-            font-size: 110px;
-            opacity: .16;
-        }
-
-        /* Buttons */
-        .primary-btn {
-            background: var(--brown);
-            color: white;
-            border: none;
-            padding: 12px 19px;
-            border-radius: 9px;
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: 700;
-            transition: .2s;
-        }
-
-        .primary-btn:hover {
-            background: var(--dark);
-            transform: translateY(-1px);
-        }
-
-        .welcome-card .primary-btn {
-            margin-top: 20px;
-            background: var(--caramel);
-        }
-
-        .secondary-btn {
-            background: white;
-            color: var(--brown);
-            border: 1px solid var(--border);
-            padding: 11px 16px;
-            border-radius: 9px;
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        /* Class progress bars */
-        .class-list {
-            display: flex;
-            flex-direction: column;
-            gap: 17px;
-            margin-top: 20px;
-        }
-
-        .class-row {
-            display: flex;
-            justify-content: space-between;
-            font-size: 12px;
-            margin-bottom: 8px;
-        }
-
-        .progress {
-            height: 7px;
-            background: #EEE8DF;
-            border-radius: 10px;
-            overflow: hidden;
-        }
-
-        .progress div {
-            height: 100%;
-            width: 0%;
-            background: var(--green);
-            border-radius: 10px;
-            transition: .4s;
-        }
-
-        .info-text {
-            color: var(--muted);
-            font-size: 12px;
-            line-height: 1.8;
-        }
-
-        /* =====================================
-           COFFEE SCANNER
-           ===================================== */
-
-        .scanner-grid {
-            grid-template-columns: 1.15fr .85fr;
-            align-items: start;
-        }
-
-        .upload-box {
-            border: 2px dashed #D8C8B7;
-            border-radius: 15px;
-            padding: 35px 20px;
-            text-align: center;
-            background: #FCFAF5;
-            cursor: pointer;
-            transition: .2s;
-        }
-
-        .upload-box:hover {
-            border-color: var(--caramel);
-            background: #F9F4EB;
-        }
-
-        .upload-icon {
-            font-size: 40px;
-            margin-bottom: 12px;
-        }
-
-        .upload-box h3 {
-            font-size: 15px;
-            margin-bottom: 8px;
-        }
-
-        .upload-box p {
-            font-size: 11px;
-            color: var(--muted);
-        }
-
-        #fileInput {
-            display: none;
-        }
-
-        .preview-area {
-            margin-top: 20px;
-            display: none;
-        }
-
-        .preview-area img {
-            width: 100%;
-            max-height: 350px;
-            object-fit: contain;
-            border-radius: 12px;
-            background: #F0EBE3;
-        }
-
-        .control-group {
-            margin-bottom: 22px;
-        }
-
-        .control-group label {
-            display: flex;
-            justify-content: space-between;
-            font-size: 12px;
-            font-weight: 700;
-            margin-bottom: 11px;
-        }
-
-        .control-group input[type=range] {
-            width: 100%;
-            accent-color: var(--brown);
-        }
-
-        .control-group select {
-            width: 100%;
-            border: 1px solid var(--border);
-            background: white;
-            padding: 12px;
-            border-radius: 9px;
-            color: var(--dark);
-        }
-
-        .check-row {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            font-size: 12px;
-            margin-bottom: 12px;
-        }
-
-        .check-row input {
-            accent-color: var(--green);
-        }
-
-        /* Detection result */
-        .result-box {
-            margin-top: 22px;
-            display: none;
-        }
-
-        .result-image {
-            width: 100%;
-            border-radius: 12px;
-            margin-bottom: 17px;
-            background: #F0EBE3;
-        }
-
-        .result-class {
-            background: var(--light-green);
-            border-radius: 12px;
-            padding: 17px;
-            margin-bottom: 15px;
-        }
-
-        .result-class small {
-            color: var(--green);
-            font-size: 10px;
-            letter-spacing: 1px;
-        }
-
-        .result-class h2 {
-            font-family: 'Playfair Display', serif;
-            font-size: 25px;
-            margin-top: 5px;
-        }
-
-        .result-details {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-
-        .result-detail {
-            background: #F8F5EF;
-            padding: 13px;
-            border-radius: 10px;
-        }
-
-        .result-detail small {
-            color: var(--muted);
-            font-size: 10px;
-        }
-
-        .result-detail strong {
-            display: block;
-            margin-top: 5px;
-            font-size: 15px;
-        }
-
-        .loading {
-            display: none;
-            padding: 20px;
-            text-align: center;
-            color: var(--brown);
-            font-size: 12px;
-        }
-
-        .error-message {
-            display: none;
-            background: #FBEAE6;
-            color: #A34030;
-            padding: 13px;
-            border-radius: 9px;
-            font-size: 12px;
-            margin-top: 15px;
-            line-height: 1.6;
-        }
-
-        /* Camera */
-        .camera-container {
-            display: none;
-            margin-top: 20px;
-        }
-
-        .camera-container video {
-            width: 100%;
-            border-radius: 12px;
-            background: #211A15;
-        }
-
-        .camera-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 12px;
-            flex-wrap: wrap;
-        }
-
-        /* =====================================
-           TABLE AND HISTORY
-           ===================================== */
-
-        .table-wrap {
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 12px;
-        }
-
-        th {
-            text-align: left;
-            color: var(--muted);
-            font-size: 10px;
-            letter-spacing: .7px;
-            padding: 15px 12px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        td {
-            padding: 15px 12px;
-            border-bottom: 1px solid #F0EAE2;
-        }
-
-        .tag {
-            display: inline-block;
-            background: var(--light-green);
-            color: var(--green);
-            padding: 6px 10px;
-            border-radius: 20px;
-            font-size: 10px;
-            font-weight: 700;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 35px;
-            color: var(--muted);
-            font-size: 12px;
-        }
-
-        /* =====================================
-           ABOUT SYSTEM
-           ===================================== */
-
-        .about-grid {
-            grid-template-columns: 1fr 1fr;
-        }
-
-        .about-card h3 {
-            font-family: 'Playfair Display', serif;
-            font-size: 19px;
-            margin-bottom: 13px;
-        }
-
-        .about-card p {
-            color: var(--muted);
-            font-size: 12px;
-            line-height: 1.9;
-        }
-
-        .class-chips {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 9px;
-            margin-top: 17px;
-        }
-
-        .class-chip {
-            background: var(--light-green);
-            color: var(--green);
-            padding: 9px 13px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 700;
-        }
-
-        /* Footer */
-        .footer {
-            text-align: center;
-            color: var(--muted);
-            font-size: 10px;
-            margin-top: 45px;
-            padding-bottom: 20px;
-        }
-
-        /* =====================================
-           RESPONSIVE DESIGN
-           ===================================== */
-
-        @media(max-width:1100px) {
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .dashboard-grid,
-            .scanner-grid,
-            .about-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media(max-width:700px) {
-
-            .sidebar {
-                width: 70px;
-                padding: 20px 9px;
-            }
-
-            .logo {
-                padding: 0;
-                justify-content: center;
-            }
-
-            .logo-text,
-            .nav-label,
-            .nav-item span:not(.nav-icon),
-            .system-status span {
-                display: none;
-            }
-
-            .nav-item {
-                justify-content: center;
-                padding: 14px 5px;
-            }
-
-            .main {
-                margin-left: 70px;
-                width: calc(100% - 70px);
-                padding: 22px 15px;
-            }
-
-            .topbar h1 {
-                font-size: 21px;
-            }
-
-            .stats-grid {
-                grid-template-columns: 1fr 1fr;
-                gap: 10px;
-            }
-
-            .stat-card {
-                padding: 15px;
-            }
-
-            .stat-card h3 {
-                font-size: 22px;
-            }
-
-            .welcome-card h2 {
-                font-size: 23px;
-            }
-
-            .api-badge {
-                display: none;
-            }
-        }
-
-    </style>
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PHOTO COFFEE | Coffee Identification System</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap');
+
+:root {
+    --bg: #F4F0E8;
+    --card: #FFFCF6;
+    --dark: #271B15;
+    --brown: #79513B;
+    --caramel: #C18A56;
+    --muted: #8B8177;
+    --line: #E5DCCF;
+    --green: #667D60;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--dark);
+}
+
+.layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Sidebar */
+
+.sidebar {
+    width: 255px;
+    background: var(--dark);
+    color: #F5EFE6;
+    padding: 30px 20px;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    height: 100vh;
+    z-index: 100;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    padding: 0 10px 35px;
+}
+
+.brand-icon {
+    width: 43px;
+    height: 43px;
+    background: var(--caramel);
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 23px;
+}
+
+.brand-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    letter-spacing: 1px;
+}
+
+.brand-sub {
+    font-size: 10px;
+    color: #B8A89A;
+    letter-spacing: 2px;
+    margin-top: 4px;
+}
+
+.nav-label {
+    color: #9E8C7D;
+    font-size: 10px;
+    letter-spacing: 2px;
+    padding: 15px 12px;
+}
+
+.nav-item {
+    display: flex;
+    gap: 13px;
+    align-items: center;
+    padding: 13px 15px;
+    border-radius: 10px;
+    color: #C8B9AC;
+    cursor: pointer;
+    margin-bottom: 5px;
+    font-size: 14px;
+    transition: 0.2s;
+}
+
+.nav-item:hover {
+    background: #3A2B22;
+    color: white;
+}
+
+.nav-item.active {
+    background: #60452F;
+    color: #FFF9F1;
+}
+
+.nav-icon {
+    width: 20px;
+    text-align: center;
+}
+
+.sidebar-bottom {
+    margin-top: auto;
+    padding: 15px 12px;
+    border-top: 1px solid #49372D;
+}
+
+.status {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 12px;
+    color: #B7A99A;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    background: #8CA67F;
+    border-radius: 50%;
+}
+
+/* Main content */
+
+.main {
+    margin-left: 255px;
+    width: calc(100% - 255px);
+    padding: 38px 48px;
+    max-width: 1600px;
+}
+
+.page {
+    display: none;
+    animation: fade 0.3s ease;
+}
+
+.page.active {
+    display: block;
+}
+
+@keyframes fade {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.breadcrumb {
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.top-tag {
+    background: #E8E0D4;
+    padding: 9px 13px;
+    border-radius: 20px;
+    font-size: 11px;
+    color: var(--brown);
+}
+
+h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 34px;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    color: var(--muted);
+    font-size: 14px;
+    margin-bottom: 30px;
+    line-height: 1.7;
+}
+
+.section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    margin-bottom: 18px;
+}
+
+.card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 17px;
+    padding: 23px;
+}
+
+.grid {
+    display: grid;
+    gap: 17px;
+}
+
+.grid-4 {
+    grid-template-columns: repeat(4, 1fr);
+}
+
+.grid-3 {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.grid-2 {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.metric-label {
+    color: var(--muted);
+    font-size: 12px;
+    margin-bottom: 12px;
+}
+
+.metric-value {
+    font-size: 27px;
+    font-weight: 700;
+}
+
+.metric-foot {
+    color: var(--green);
+    font-size: 11px;
+    margin-top: 9px;
+}
+
+.hero {
+    background: linear-gradient(125deg, #38271C, #6A4B34);
+    color: #FFF9F1;
+    padding: 38px;
+    border-radius: 20px;
+    margin-bottom: 25px;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero::after {
+    content: "☕";
+    position: absolute;
+    font-size: 150px;
+    right: 40px;
+    top: -15px;
+    opacity: 0.09;
+}
+
+.hero-tag {
+    color: #D5B28C;
+    font-size: 11px;
+    letter-spacing: 2px;
+    margin-bottom: 17px;
+}
+
+.hero h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 34px;
+    margin-bottom: 12px;
+    max-width: 600px;
+}
+
+.hero p {
+    color: #D6C7B8;
+    font-size: 13px;
+    line-height: 1.8;
+    max-width: 550px;
+}
+
+.btn {
+    background: var(--brown);
+    border: none;
+    color: white;
+    padding: 12px 18px;
+    border-radius: 10px;
+    font-family: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn:hover {
+    background: #5E3C28;
+    transform: translateY(-1px);
+}
+
+.btn-light {
+    background: #EDE4D8;
+    color: var(--brown);
+}
+
+.btn-light:hover {
+    background: #E2D4C4;
+}
+
+.hero .btn {
+    margin-top: 22px;
+    background: #C18A56;
+    color: #241910;
+}
+
+.class-card {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.coffee-icon {
+    width: 53px;
+    height: 53px;
+    background: #EFE5D7;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 27px;
+}
+
+.class-card h3 {
+    font-size: 15px;
+    margin-bottom: 5px;
+}
+
+.class-card p {
+    font-size: 11px;
+    color: var(--muted);
+}
+
+.workflow {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.workflow-step {
+    flex: 1;
+    padding: 18px;
+    border: 1px solid var(--line);
+    background: var(--card);
+    border-radius: 13px;
+}
+
+.step-number {
+    color: var(--caramel);
+    font-size: 12px;
+    font-weight: bold;
+    margin-bottom: 12px;
+}
+
+.workflow-step h4 {
+    font-size: 13px;
+    margin-bottom: 8px;
+}
+
+.workflow-step p {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.7;
+}
+
+/* Scanner */
+
+.upload-box {
+    border: 2px dashed #D9CBBB;
+    background: #FAF7F1;
+    padding: 38px 20px;
+    border-radius: 15px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.upload-icon {
+    font-size: 37px;
+    margin-bottom: 12px;
+}
+
+.upload-box h3 {
+    font-size: 16px;
+    margin-bottom: 8px;
+}
+
+.upload-box p {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 18px;
+}
+
+input[type="file"] {
+    max-width: 100%;
+    font-family: inherit;
+    font-size: 12px;
+}
+
+.preview {
+    max-width: 100%;
+    max-height: 420px;
+    border-radius: 12px;
+    margin-top: 18px;
+    object-fit: contain;
+}
+
+.result-box {
+    margin-top: 22px;
+    padding: 20px;
+    background: #F0E8DC;
+    border-radius: 14px;
+}
+
+.result-class {
+    font-family: 'Playfair Display', serif;
+    font-size: 30px;
+    margin: 8px 0;
+}
+
+.confidence-bar {
+    width: 100%;
+    height: 10px;
+    background: #DCD0C1;
+    border-radius: 20px;
+    margin-top: 12px;
+    overflow: hidden;
+}
+
+.confidence-fill {
+    height: 100%;
+    background: var(--caramel);
+    border-radius: 20px;
+}
+
+.note {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.7;
+    margin-top: 15px;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+
+.table th, .table td {
+    padding: 13px 10px;
+    text-align: left;
+    border-bottom: 1px solid var(--line);
+}
+
+.table th {
+    color: var(--muted);
+    font-weight: 500;
+}
+
+.bar-row {
+    margin: 17px 0;
+}
+
+.bar-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    margin-bottom: 7px;
+}
+
+.bar {
+    height: 9px;
+    border-radius: 20px;
+    background: #E9E0D5;
+    overflow: hidden;
+}
+
+.bar-fill {
+    height: 100%;
+    background: var(--caramel);
+    border-radius: 20px;
+}
+
+.about-box {
+    line-height: 1.8;
+    color: #65574C;
+    font-size: 13px;
+}
+
+.about-box h3 {
+    color: var(--dark);
+    margin: 20px 0 10px;
+}
+
+.footer {
+    border-top: 1px solid var(--line);
+    margin-top: 45px;
+    padding-top: 20px;
+    color: var(--muted);
+    font-size: 11px;
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+}
+
+.mobile-menu {
+    display: none;
+}
+
+/* Mobile responsiveness */
+
+@media(max-width: 1050px) {
+    .main {
+        padding: 30px;
+    }
+
+    .grid-4 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .workflow {
+        flex-wrap: wrap;
+    }
+
+    .workflow-step {
+        min-width: 40%;
+    }
+}
+
+@media(max-width: 700px) {
+    .sidebar {
+        width: 75px;
+        padding: 20px 10px;
+    }
+
+    .brand {
+        justify-content: center;
+        padding: 0 0 25px;
+    }
+
+    .brand-text,
+    .nav-label,
+    .nav-text,
+    .sidebar-bottom {
+        display: none;
+    }
+
+    .brand-icon {
+        width: 45px;
+        height: 45px;
+    }
+
+    .nav-item {
+        justify-content: center;
+        padding: 15px 8px;
+    }
+
+    .nav-icon {
+        font-size: 18px;
+    }
+
+    .main {
+        margin-left: 75px;
+        width: calc(100% - 75px);
+        padding: 22px 16px;
+    }
+
+    h1 {
+        font-size: 27px;
+    }
+
+    .hero {
+        padding: 25px;
+    }
+
+    .hero h2 {
+        font-size: 25px;
+    }
+
+    .grid-4, .grid-3, .grid-2 {
+        grid-template-columns: 1fr;
+    }
+
+    .workflow-step {
+        min-width: 100%;
+    }
+
+    .top-tag {
+        display: none;
+    }
+
+    .footer {
+        flex-direction: column;
+    }
+}
+</style>
 </head>
-
 
 <body>
 
 <div class="layout">
 
-    <!-- =====================================
-         3. SIDEBAR
-         Navigasi utama website
-         ===================================== -->
+<!-- Sidebar navigation -->
+<aside class="sidebar">
 
-    <aside class="sidebar">
-
-        <div class="logo">
-
-            <div class="logo-icon">☕</div>
-
-            <div class="logo-text">
-                <h2>PHOTO COFFEE</h2>
-                <p>COFFEE IDENTIFICATION</p>
-            </div>
-
+    <div class="brand">
+        <div class="brand-icon">☕</div>
+        <div class="brand-text">
+            <div class="brand-name">PHOTO COFFEE</div>
+            <div class="brand-sub">COFFEE IDENTIFICATION</div>
         </div>
+    </div>
 
-        <div class="nav-label">MAIN MENU</div>
+    <div class="nav-label">MAIN MENU</div>
 
-        <button class="nav-item active" data-page="dashboard">
-            <span class="nav-icon">⌂</span>
-            <span>Dashboard</span>
-        </button>
+    <div class="nav-item active" onclick="navigate('dashboard', this)">
+        <span class="nav-icon">⌂</span>
+        <span class="nav-text">Dashboard</span>
+    </div>
 
-        <button class="nav-item" data-page="scanner">
-            <span class="nav-icon">◉</span>
-            <span>Coffee Scanner</span>
-        </button>
+    <div class="nav-item" onclick="navigate('scanner', this)">
+        <span class="nav-icon">⌕</span>
+        <span class="nav-text">Coffee Scanner</span>
+    </div>
 
-        <button class="nav-item" data-page="analytics">
-            <span class="nav-icon">▥</span>
-            <span>Analytics</span>
-        </button>
+    <div class="nav-item" onclick="navigate('analytics', this)">
+        <span class="nav-icon">▥</span>
+        <span class="nav-text">Analytics</span>
+    </div>
 
-        <button class="nav-item" data-page="history">
-            <span class="nav-icon">◷</span>
-            <span>Detection History</span>
-        </button>
+    <div class="nav-item" onclick="navigate('history', this)">
+        <span class="nav-icon">◷</span>
+        <span class="nav-text">History</span>
+    </div>
 
-        <button class="nav-item" data-page="about">
-            <span class="nav-icon">ⓘ</span>
-            <span>About System</span>
-        </button>
+    <div class="nav-item" onclick="navigate('about', this)">
+        <span class="nav-icon">ⓘ</span>
+        <span class="nav-text">About System</span>
+    </div>
 
-        <div class="sidebar-bottom">
-
-            <div class="system-status">
-                <span class="status-dot"></span>
-                <span id="sidebarStatus">Checking system...</span>
-            </div>
-
+    <div class="sidebar-bottom">
+        <div class="status">
+            <span class="status-dot"></span>
+            <span>Web Interface Online</span>
         </div>
+    </div>
 
-    </aside>
+</aside>
 
+<!-- Main area -->
+<main class="main">
 
-    <!-- =====================================
-         4. MAIN CONTENT
-         Tempat seluruh halaman ditampilkan
-         ===================================== -->
-
-    <main class="main">
-
-        <header class="topbar">
-
-            <div>
-                <div class="breadcrumb">
-                    PHOTO COFFEE / <span id="breadcrumb">DASHBOARD</span>
-                </div>
-
-                <h1 id="pageTitle">Dashboard</h1>
-            </div>
-
-            <div class="api-badge">
-                API STATUS: <span id="apiStatus">Checking</span>
-            </div>
-
-        </header>
-
-
-        <!-- =====================================
-             5. DASHBOARD PAGE
-             Menampilkan ringkasan sistem
-             ===================================== -->
-
-        <section class="page active" id="dashboard">
-
-            <div class="grid stats-grid">
-
-                <div class="card stat-card">
-                    <div class="stat-icon">📷</div>
-                    <h3 id="totalDetections">—</h3>
-                    <p>Total Detections</p>
-                    <small>Recorded system results</small>
-                </div>
-
-                <div class="card stat-card">
-                    <div class="stat-icon">☕</div>
-                    <h3>4</h3>
-                    <p>Coffee Classes</p>
-                    <small>Four supported varieties</small>
-                </div>
-
-                <div class="card stat-card">
-                    <div class="stat-icon">🎯</div>
-                    <h3 id="averageConfidence">—</h3>
-                    <p>Average Confidence</p>
-                    <small>Based on recorded detections</small>
-                </div>
-
-                <div class="card stat-card">
-                    <div class="stat-icon">⚙️</div>
-                    <h3 id="modelStatus">—</h3>
-                    <p>Model Status</p>
-                    <small>YOLOv8n-seg</small>
-                </div>
-
-            </div>
-
-
-            <div class="grid dashboard-grid">
-
-                <div class="card welcome-card">
-
-                    <h2>Discover the Identity of Every Coffee Bean.</h2>
-
-                    <p>
-                        An intelligent coffee identification system
-                        designed to classify Arabika, Robusta, Excelsa,
-                        and Liberika using digital image processing
-                        and computer vision.
-                    </p>
-
-                    <button class="primary-btn" onclick="showPage('scanner')">
-                        Start Scanning →
-                    </button>
-
-                    <div class="coffee-decoration">☕</div>
-
-                </div>
-
-
-                <div class="card">
-
-                    <div class="section-heading">
-                        <h2>Coffee Categories</h2>
-                        <p>Four coffee varieties supported by the model.</p>
-                    </div>
-
-                    <div class="class-list">
-
-                        <div>
-                            <div class="class-row">
-                                <strong>Arabika</strong>
-                                <span>Class 0</span>
-                            </div>
-                            <div class="progress"><div style="width:100%"></div></div>
-                        </div>
-
-                        <div>
-                            <div class="class-row">
-                                <strong>Ekselsa</strong>
-                                <span>Class 1</span>
-                            </div>
-                            <div class="progress"><div style="width:100%"></div></div>
-                        </div>
-
-                        <div>
-                            <div class="class-row">
-                                <strong>Liberika</strong>
-                                <span>Class 2</span>
-                            </div>
-                            <div class="progress"><div style="width:100%"></div></div>
-                        </div>
-
-                        <div>
-                            <div class="class-row">
-                                <strong>Robusta</strong>
-                                <span>Class 3</span>
-                            </div>
-                            <div class="progress"><div style="width:100%"></div></div>
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <!-- =====================================
-             6. COFFEE SCANNER PAGE
-             Upload gambar dan melakukan deteksi
-             ===================================== -->
-
-        <section class="page" id="scanner">
-
-            <div class="section-heading">
-                <h2>Coffee Scanner</h2>
-                <p>Upload an image or capture a coffee bean image for identification.</p>
-            </div>
-
-
-            <div class="grid scanner-grid">
-
-                <div class="card">
-
-                    <!-- Upload image -->
-                    <div class="upload-box" id="uploadBox"
-                         onclick="document.getElementById('fileInput').click()">
-
-                        <div class="upload-icon">📁</div>
-
-                        <h3>Upload Coffee Image</h3>
-
-                        <p>Click to browse or select an image from your device.</p>
-
-                        <p style="margin-top:10px">
-                            Supported formats: JPG, JPEG, PNG
-                        </p>
-
-                    </div>
-
-                    <input type="file" id="fileInput"
-                           accept="image/png,image/jpeg,image/jpg">
-
-
-                    <!-- Image preview -->
-                    <div class="preview-area" id="previewArea">
-
-                        <h3 style="font-size:13px;margin-bottom:12px">
-                            Image Preview
-                        </h3>
-
-                        <img id="previewImage" alt="Coffee preview">
-
-                    </div>
-
-
-                    <!-- Camera -->
-                    <div class="camera-container" id="cameraContainer">
-
-                        <video id="cameraVideo" autoplay playsinline></video>
-
-                        <div class="camera-actions">
-
-                            <button class="primary-btn" onclick="captureCamera()">
-                                Capture Image
-                            </button>
-
-                            <button class="secondary-btn" onclick="stopCamera()">
-                                Close Camera
-                            </button>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="camera-actions" style="margin-top:18px">
-
-                        <button class="secondary-btn" onclick="startCamera()">
-                            📷 Open Camera
-                        </button>
-
-                    </div>
-
-
-                    <!-- Loading indicator -->
-                    <div class="loading" id="loading">
-                        <div style="font-size:25px;margin-bottom:10px">⏳</div>
-                        Processing image with YOLOv8n-seg...
-                    </div>
-
-
-                    <!-- Error notification -->
-                    <div class="error-message" id="errorMessage"></div>
-
-
-                    <!-- Detection result -->
-                    <div class="result-box" id="resultBox">
-
-                        <div class="section-heading">
-                            <h2>Detection Result</h2>
-                            <p>Result generated by the connected YOLO model.</p>
-                        </div>
-
-                        <img class="result-image" id="resultImage"
-                             alt="Detection result">
-
-                        <div class="result-class">
-                            <small>PREDICTED COFFEE CLASS</small>
-                            <h2 id="predictedClass">—</h2>
-                        </div>
-
-                        <div class="result-details">
-
-                            <div class="result-detail">
-                                <small>Confidence</small>
-                                <strong id="confidenceResult">—</strong>
-                            </div>
-
-                            <div class="result-detail">
-                                <small>Detected Instances</small>
-                                <strong id="instancesResult">—</strong>
-                            </div>
-
-                            <div class="result-detail">
-                                <small>Processing Time</small>
-                                <strong id="processingResult">—</strong>
-                            </div>
-
-                            <div class="result-detail">
-                                <small>Model</small>
-                                <strong>YOLOv8n-seg</strong>
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                <!-- Detection settings -->
-                <div class="card">
-
-                    <div class="section-heading">
-                        <h2>Detection Settings</h2>
-                        <p>Adjust model inference parameters.</p>
-                    </div>
-
-
-                    <div class="control-group">
-
-                        <label>
-                            <span>Confidence Threshold</span>
-                            <span id="confidenceValue">0.25</span>
-                        </label>
-
-                        <input type="range" id="confidenceSlider"
-                               min="0.05" max="0.95"
-                               step="0.05" value="0.25">
-
-                    </div>
-
-
-                    <div class="control-group">
-
-                        <label>Image Size</label>
-
-                        <select id="imageSize">
-                            <option value="320">320 × 320</option>
-                            <option value="416">416 × 416</option>
-                            <option value="512">512 × 512</option>
-                            <option value="640" selected>640 × 640</option>
-                        </select>
-
-                    </div>
-
-
-                    <div class="control-group">
-
-                        <label>Visualization</label>
-
-                        <div class="check-row">
-                            <input type="checkbox" id="showBoxes" checked>
-                            <span>Show Bounding Boxes</span>
-                        </div>
-
-                        <div class="check-row">
-                            <input type="checkbox" id="showMasks" checked>
-                            <span>Show Segmentation Masks</span>
-                        </div>
-
-                    </div>
-
-
-                    <button class="primary-btn"
-                            style="width:100%"
-                            onclick="runDetection()">
-
-                        Run Detection →
-
-                    </button>
-
-
-                    <p class="info-text" style="margin-top:17px">
-                        Note: The confidence threshold determines the minimum
-                        confidence score required for a detection to be displayed.
-                        Higher values may reduce the number of detected objects.
-                    </p>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <!-- =====================================
-             7. ANALYTICS PAGE
-             Statistik hasil deteksi aktual
-             ===================================== -->
-
-        <section class="page" id="analytics">
-
-            <div class="section-heading">
-                <h2>Detection Analytics</h2>
-                <p>Overview based on actual detection records from the backend.</p>
-            </div>
-
-
-            <div class="grid stats-grid">
-
-                <div class="card stat-card">
-                    <div class="stat-icon">📊</div>
-                    <h3 id="analyticsTotal">—</h3>
-                    <p>Total Records</p>
-                </div>
-
-                <div class="card stat-card">
-                    <div class="stat-icon">🎯</div>
-                    <h3 id="analyticsAverage">—</h3>
-                    <p>Average Confidence</p>
-                </div>
-
-                <div class="card stat-card">
-                    <div class="stat-icon">🌱</div>
-                    <h3>4</h3>
-                    <p>Available Classes</p>
-                </div>
-
-                <div class="card stat-card">
-                    <div class="stat-icon">⚙️</div>
-                    <h3>YOLOv8</h3>
-                    <p>Detection Architecture</p>
-                </div>
-
-            </div>
-
-
-            <div class="card">
-
-                <div class="section-heading">
-                    <h2>Class Distribution</h2>
-                    <p>Number of detected instances per coffee class.</p>
-                </div>
-
-                <div id="analyticsDistribution" class="class-list">
-                    <div class="empty-state">
-                        Waiting for backend data...
-                    </div>
-                </div>
-
-            </div>
-
-
-            <p class="info-text" style="margin-top:15px">
-                Analytics reflects recorded inference results.
-                It does not represent training accuracy, precision,
-                recall, or mAP unless those evaluation metrics
-                are supplied separately by the backend.
-            </p>
-
-        </section>
-
-
-        <!-- =====================================
-             8. DETECTION HISTORY PAGE
-             Riwayat hasil identifikasi
-             ===================================== -->
-
-        <section class="page" id="history">
-
-            <div class="section-heading">
-                <h2>Detection History</h2>
-                <p>Previously recorded coffee identification results.</p>
-            </div>
-
-            <div class="card">
-
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;gap:10px">
-
-                    <h3 style="font-size:15px">
-                        Recent Detections
-                    </h3>
-
-                    <button class="secondary-btn" onclick="loadHistory()">
-                        ↻ Refresh
-                    </button>
-
-                </div>
-
-
-                <div class="table-wrap">
-
-                    <table>
-
-                        <thead>
-                            <tr>
-                                <th>NO.</th>
-                                <th>COFFEE CLASS</th>
-                                <th>CONFIDENCE</th>
-                                <th>INSTANCES</th>
-                                <th>DATE</th>
-                            </tr>
-                        </thead>
-
-                        <tbody id="historyTable">
-
-                            <tr>
-                                <td colspan="5" class="empty-state">
-                                    Loading detection history...
-                                </td>
-                            </tr>
-
-                        </tbody>
-
-                    </table>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <!-- =====================================
-             9. ABOUT SYSTEM PAGE
-             Informasi tentang PHOTO COFFEE
-             ===================================== -->
-
-        <section class="page" id="about">
-
-            <div class="section-heading">
-                <h2>About PHOTO COFFEE</h2>
-                <p>Coffee Identification System based on Computer Vision.</p>
-            </div>
-
-
-            <div class="grid about-grid">
-
-                <div class="card about-card">
-
-                    <h3>System Overview</h3>
-
-                    <p>
-                        PHOTO COFFEE is a coffee identification system
-                        developed to classify green coffee beans into
-                        four varieties: Arabika, Robusta, Excelsa,
-                        and Liberika.
-                    </p>
-
-                    <p style="margin-top:12px">
-                        The system utilizes digital image processing,
-                        computer vision, and deep learning through
-                        the YOLOv8n-seg architecture.
-                    </p>
-
-                </div>
-
-
-                <div class="card about-card">
-
-                    <h3>Model Information</h3>
-
-                    <p>
-                        Model Architecture: YOLOv8n-seg<br>
-                        Task: Object Detection and Instance Segmentation<br>
-                        Input: Coffee Bean Images<br>
-                        Output: Coffee Class, Confidence Score,
-                        and Segmentation Mask
-                    </p>
-
-                </div>
-
-
-                <div class="card about-card">
-
-                    <h3>Supported Coffee Varieties</h3>
-
-                    <p>The model supports four coffee bean categories.</p>
-
-                    <div class="class-chips">
-                        <span class="class-chip">Arabika</span>
-                        <span class="class-chip">Ekselsa</span>
-                        <span class="class-chip">Liberika</span>
-                        <span class="class-chip">Robusta</span>
-                    </div>
-
-                </div>
-
-
-                <div class="card about-card">
-
-                    <h3>System Purpose</h3>
-
-                    <p>
-                        To support coffee identification through
-                        image-based analysis and provide visual
-                        information about detected coffee beans.
-                    </p>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <!-- Footer -->
-        <footer class="footer">
-
-            PHOTO COFFEE — Coffee Identification System<br>
-            YOLOv8n-seg | Digital Image Processing | Computer Vision
-
-        </footer>
-
-    </main>
-
+<div class="topbar">
+    <div class="breadcrumb">PHOTO COFFEE / <span id="breadcrumb">DASHBOARD</span></div>
+    <div class="top-tag">COFFEE AI TECHNOLOGY</div>
 </div>
 
+<!-- Dashboard page -->
+<section id="dashboard" class="page active">
 
-<!-- =========================================
-     10. JAVASCRIPT
-     Mengatur interaksi dan komunikasi API
-     ========================================= -->
+    <h1>Dashboard Overview</h1>
+    <p class="subtitle">Coffee identification and visual analysis system.</p>
+
+    <div class="hero">
+        <div class="hero-tag">COFFEE IDENTIFICATION SYSTEM</div>
+        <h2>Discover the Identity<br>of Your Coffee.</h2>
+        <p>
+            An image-based coffee classification platform designed to explore
+            the visual characteristics of Arabika, Ekselsa, Liberika, and Robusta
+            coffee beans through digital image processing and computer vision.
+        </p>
+        <button class="btn" onclick="navigateById('scanner')">Open Coffee Scanner →</button>
+    </div>
+
+    <div class="grid grid-4" style="margin-bottom:28px">
+
+        <div class="card">
+            <div class="metric-label">Coffee Varieties</div>
+            <div class="metric-value">04</div>
+            <div class="metric-foot">Supported classes</div>
+        </div>
+
+        <div class="card">
+            <div class="metric-label">Technology</div>
+            <div class="metric-value">YOLOv8</div>
+            <div class="metric-foot">Segmentation-based concept</div>
+        </div>
+
+        <div class="card">
+            <div class="metric-label">System</div>
+            <div class="metric-value">AI Vision</div>
+            <div class="metric-foot">Computer vision platform</div>
+        </div>
+
+        <div class="card">
+            <div class="metric-label">Interface</div>
+            <div class="metric-value">Web App</div>
+            <div class="metric-foot">Responsive interface</div>
+        </div>
+
+    </div>
+
+    <h2 class="section-title">Coffee Varieties</h2>
+
+    <div class="grid grid-2" style="margin-bottom:28px">
+
+        <div class="card class-card">
+            <div class="coffee-icon">☕</div>
+            <div>
+                <h3>Arabika</h3>
+                <p>Coffea arabica</p>
+            </div>
+        </div>
+
+        <div class="card class-card">
+            <div class="coffee-icon">🫘</div>
+            <div>
+                <h3>Ekselsa</h3>
+                <p>Coffea excelsa</p>
+            </div>
+        </div>
+
+        <div class="card class-card">
+            <div class="coffee-icon">🌿</div>
+            <div>
+                <h3>Liberika</h3>
+                <p>Coffea liberica</p>
+            </div>
+        </div>
+
+        <div class="card class-card">
+            <div class="coffee-icon">🍂</div>
+            <div>
+                <h3>Robusta</h3>
+                <p>Coffea canephora</p>
+            </div>
+        </div>
+
+    </div>
+
+    <h2 class="section-title">System Workflow</h2>
+
+    <div class="workflow">
+
+        <div class="workflow-step">
+            <div class="step-number">STEP 01</div>
+            <h4>Image Input</h4>
+            <p>Upload coffee bean imagery for visual analysis.</p>
+        </div>
+
+        <div class="workflow-step">
+            <div class="step-number">STEP 02</div>
+            <h4>Image Processing</h4>
+            <p>Image preparation and visual feature analysis.</p>
+        </div>
+
+        <div class="workflow-step">
+            <div class="step-number">STEP 03</div>
+            <h4>Classification</h4>
+            <p>Visual identification of coffee varieties.</p>
+        </div>
+
+        <div class="workflow-step">
+            <div class="step-number">STEP 04</div>
+            <h4>Visualization</h4>
+            <p>Present detection information and results.</p>
+        </div>
+
+    </div>
+
+</section>
+
+<!-- Coffee scanner page -->
+<section id="scanner" class="page">
+
+    <h1>Coffee Scanner</h1>
+    <p class="subtitle">Upload a coffee bean image to explore the scanner interface.</p>
+
+    <div class="card">
+
+        <div class="upload-box">
+            <div class="upload-icon">📷</div>
+            <h3>Upload Coffee Image</h3>
+            <p>Select an image file to preview the scanner interface.</p>
+            <input type="file" id="imageInput" accept="image/*">
+            <div id="previewContainer"></div>
+        </div>
+
+        <button class="btn" onclick="scanImage()">Analyze Image</button>
+        <button class="btn btn-light" onclick="resetScanner()">Reset</button>
+
+        <div id="scanResult"></div>
+
+    </div>
+
+    <div class="card" style="margin-top:20px">
+        <h3 style="margin-bottom:10px">Scanner Information</h3>
+        <p class="note">
+            This GitHub Pages version is a frontend demonstration.
+            The uploaded image is previewed locally in your browser.
+            Classification results shown in demo mode are randomly generated
+            and are not predictions from the trained YOLOv8 model.
+        </p>
+    </div>
+
+</section>
+
+<!-- Analytics page -->
+<section id="analytics" class="page">
+
+    <h1>Analytics</h1>
+    <p class="subtitle">Visual overview of coffee classification categories.</p>
+
+    <div class="grid grid-4" style="margin-bottom:25px">
+
+        <div class="card">
+            <div class="metric-label">Classes</div>
+            <div class="metric-value">4</div>
+        </div>
+
+        <div class="card">
+            <div class="metric-label">Model Concept</div>
+            <div class="metric-value">YOLOv8</div>
+        </div>
+
+        <div class="card">
+            <div class="metric-label">Analysis</div>
+            <div class="metric-value">Visual</div>
+        </div>
+
+        <div class="card">
+            <div class="metric-label">Platform</div>
+            <div class="metric-value">Web</div>
+        </div>
+
+    </div>
+
+    <div class="card">
+        <h2 class="section-title">Coffee Categories</h2>
+
+        <div class="bar-row">
+            <div class="bar-label"><span>Arabika</span><span>Class 01</span></div>
+            <div class="bar"><div class="bar-fill" style="width:85%"></div></div>
+        </div>
+
+        <div class="bar-row">
+            <div class="bar-label"><span>Ekselsa</span><span>Class 02</span></div>
+            <div class="bar"><div class="bar-fill" style="width:70%"></div></div>
+        </div>
+
+        <div class="bar-row">
+            <div class="bar-label"><span>Liberika</span><span>Class 03</span></div>
+            <div class="bar"><div class="bar-fill" style="width:65%"></div></div>
+        </div>
+
+        <div class="bar-row">
+            <div class="bar-label"><span>Robusta</span><span>Class 04</span></div>
+            <div class="bar"><div class="bar-fill" style="width:80%"></div></div>
+        </div>
+
+        <p class="note">
+            The visual bars above are illustrative UI elements, not model
+            evaluation metrics or measured class performance.
+        </p>
+    </div>
+
+</section>
+
+<!-- History page -->
+<section id="history" class="page">
+
+    <h1>Detection History</h1>
+    <p class="subtitle">Recent images analyzed during this browser session.</p>
+
+    <div class="card">
+
+        <div id="historyContent">
+            <p class="note">No images have been analyzed during this session.</p>
+        </div>
+
+        <button class="btn btn-light" onclick="clearHistory()" style="margin-top:20px">
+            Clear History
+        </button>
+
+    </div>
+
+</section>
+
+<!-- About page -->
+<section id="about" class="page">
+
+    <h1>About System</h1>
+    <p class="subtitle">An introduction to the PHOTO COFFEE project.</p>
+
+    <div class="card about-box">
+
+        <h2 class="section-title">PHOTO COFFEE</h2>
+
+        <p>
+            PHOTO COFFEE is a coffee identification system concept developed
+            using digital image processing, computer vision, and deep learning.
+            The project focuses on visual identification of coffee bean varieties.
+        </p>
+
+        <h3>Research Objective</h3>
+
+        <p>
+            To explore the development of a computer vision-based system for
+            identifying Arabika, Ekselsa, Liberika, and Robusta coffee beans
+            through digital images.
+        </p>
+
+        <h3>Classification Categories</h3>
+
+        <p>
+            Arabika, Ekselsa, Liberika, and Robusta.
+        </p>
+
+        <h3>Technology</h3>
+
+        <p>
+            Python, YOLOv8 Segmentation, Digital Image Processing,
+            Computer Vision, and Web Interface.
+        </p>
+
+        <h3>Research Development</h3>
+
+        <p>
+            This project is part of an undergraduate research development
+            initiative in Food Science and Technology, integrating agricultural
+            commodities with artificial intelligence and visual analysis.
+        </p>
+
+    </div>
+
+</section>
+
+<footer class="footer">
+    <span>PHOTO COFFEE · Coffee Identification System</span>
+    <span>Digital Image Processing & Computer Vision</span>
+</footer>
+
+</main>
+</div>
 
 <script>
 
-/*
-    API CONFIGURATION
+/* Navigation */
+function navigate(page, element) {
 
-    Alamat ini merupakan alamat backend Python.
-    Untuk pengujian lokal, backend dijalankan di port 8000.
-*/
-
-const API_BASE = "http://127.0.0.1:8000";
-
-
-/*
-    Urutan kelas harus sesuai dengan data.yaml
-    Model yang digunakan:
-    0 = Arabika
-    1 = Ekselsa
-    2 = Liberika
-    3 = Robusta
-*/
-
-const CLASS_NAMES = [
-    "Arabika",
-    "Ekselsa",
-    "Liberika",
-    "Robusta"
-];
-
-
-/* Menyimpan gambar yang dipilih pengguna */
-let selectedFile = null;
-
-
-/* Menyimpan koneksi kamera */
-let cameraStream = null;
-
-
-/* =====================================
-   11. PAGE NAVIGATION
-   Mengatur perpindahan halaman
-   ===================================== */
-
-const pageTitles = {
-    dashboard: "Dashboard",
-    scanner: "Coffee Scanner",
-    analytics: "Analytics",
-    history: "Detection History",
-    about: "About System"
-};
-
-
-function showPage(page) {
-
-    // Sembunyikan seluruh halaman
-    document.querySelectorAll(".page").forEach(section => {
-        section.classList.remove("active");
+    document.querySelectorAll('.page').forEach(function(p) {
+        p.classList.remove('active');
     });
 
-    // Hilangkan status aktif dari seluruh navigasi
-    document.querySelectorAll(".nav-item").forEach(button => {
-        button.classList.remove("active");
+    document.querySelectorAll('.nav-item').forEach(function(n) {
+        n.classList.remove('active');
     });
 
-    // Tampilkan halaman yang dipilih
-    document.getElementById(page).classList.add("active");
+    document.getElementById(page).classList.add('active');
 
-    // Aktifkan navigasi yang sesuai
-    const nav = document.querySelector(`[data-page="${page}"]`);
-
-    if (nav) {
-        nav.classList.add("active");
+    if (element) {
+        element.classList.add('active');
     }
 
-    // Ubah judul halaman
-    document.getElementById("pageTitle").textContent = pageTitles[page];
+    document.getElementById('breadcrumb').textContent =
+        page.replace('-', ' ').toUpperCase();
 
-    document.getElementById("breadcrumb").textContent =
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function navigateById(page) {
+    const navItems = document.querySelectorAll('.nav-item');
+
+    navItems.forEach(function(item) {
+        item.classList.remove('active');
+    });
+
+    document.querySelectorAll('.page').forEach(function(p) {
+        p.classList.remove('active');
+    });
+
+    document.getElementById(page).classList.add('active');
+
+    document.getElementById('breadcrumb').textContent =
         page.toUpperCase();
 
-    // Perbarui data sesuai halaman
-    if (page === "dashboard") loadDashboard();
-
-    if (page === "analytics") loadAnalytics();
-
-    if (page === "history") loadHistory();
-
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
+/* Image preview */
+const imageInput = document.getElementById('imageInput');
 
-/* Event listener navigasi */
-document.querySelectorAll(".nav-item").forEach(button => {
-
-    button.addEventListener("click", () => {
-        showPage(button.dataset.page);
-    });
-
-});
-
-
-/* =====================================
-   12. API REQUEST
-   Fungsi komunikasi dengan backend
-   ===================================== */
-
-async function apiRequest(endpoint, options = {}) {
-
-    const response = await fetch(API_BASE + endpoint, options);
-
-    // Periksa apakah respons berhasil
-    if (!response.ok) {
-
-        let detail = "";
-
-        try {
-
-            const error = await response.json();
-
-            detail = error.detail || JSON.stringify(error);
-
-        } catch (_) {
-
-            detail = await response.text();
-
-        }
-
-        throw new Error(detail || `HTTP ${response.status}`);
-
-    }
-
-    return response.json();
-
-}
-
-
-/* =====================================
-   13. SYSTEM STATUS
-   Memeriksa apakah backend aktif
-   ===================================== */
-
-async function checkStatus() {
-
-    try {
-
-        const data = await apiRequest("/api/status");
-
-        const online =
-            data.status === "online" ||
-            data.status === "ok";
-
-        document.getElementById("apiStatus").textContent =
-            online ? "ONLINE" : "CONNECTED";
-
-        document.getElementById("sidebarStatus").textContent =
-            online ? "System Online" : "System Connected";
-
-        document.getElementById("modelStatus").textContent =
-            data.model_loaded === false ? "Not Loaded" : "Ready";
-
-    } catch (error) {
-
-        document.getElementById("apiStatus").textContent = "OFFLINE";
-
-        document.getElementById("sidebarStatus").textContent =
-            "Backend Offline";
-
-        document.getElementById("modelStatus").textContent =
-            "Offline";
-
-    }
-
-}
-
-
-/* =====================================
-   14. IMAGE UPLOAD
-   Membaca gambar dari perangkat pengguna
-   ===================================== */
-
-const fileInput = document.getElementById("fileInput");
-
-
-fileInput.addEventListener("change", event => {
+imageInput.addEventListener('change', function(event) {
 
     const file = event.target.files[0];
 
     if (!file) return;
 
-    // Validasi format file
-    if (!file.type.startsWith("image/")) {
-
-        showError("Please select a valid image file.");
-
-        return;
-
-    }
-
-    selectedFile = file;
-
     const reader = new FileReader();
 
-    reader.onload = e => {
+    reader.onload = function(e) {
 
-        // Tampilkan gambar sebelum deteksi
-        document.getElementById("previewImage").src =
-            e.target.result;
+        document.getElementById('previewContainer').innerHTML = `
+            <img src="${e.target.result}" class="preview" id="previewImage">
+        `;
 
-        document.getElementById("previewArea").style.display =
-            "block";
-
-        // Sembunyikan hasil deteksi sebelumnya
-        document.getElementById("resultBox").style.display =
-            "none";
-
-        hideError();
+        document.getElementById('scanResult').innerHTML = '';
 
     };
 
     reader.readAsDataURL(file);
-
 });
 
+/* Demonstration scanner */
+function scanImage() {
 
-/* =====================================
-   15. CONFIDENCE THRESHOLD
-   Mengatur batas minimum confidence
-   ===================================== */
+    const file = imageInput.files[0];
 
-const confidenceSlider =
-    document.getElementById("confidenceSlider");
-
-
-confidenceSlider.addEventListener("input", () => {
-
-    document.getElementById("confidenceValue").textContent =
-        Number(confidenceSlider.value).toFixed(2);
-
-});
-
-
-/* =====================================
-   16. CAMERA FUNCTION
-   Mengakses kamera perangkat
-   ===================================== */
-
-async function startCamera() {
-
-    try {
-
-        cameraStream =
-            await navigator.mediaDevices.getUserMedia({
-
-                video: {
-                    facingMode: "environment"
-                },
-
-                audio: false
-
-            });
-
-        const video =
-            document.getElementById("cameraVideo");
-
-        video.srcObject = cameraStream;
-
-        document.getElementById("cameraContainer").style.display =
-            "block";
-
-    } catch (error) {
-
-        showError(
-            "Unable to access camera. Please check browser permissions."
-        );
-
-    }
-
-}
-
-
-/* Menghentikan kamera */
-function stopCamera() {
-
-    if (cameraStream) {
-
-        cameraStream.getTracks().forEach(track => track.stop());
-
-        cameraStream = null;
-
-    }
-
-    document.getElementById("cameraContainer").style.display =
-        "none";
-
-}
-
-
-/* Mengambil gambar dari kamera */
-function captureCamera() {
-
-    const video =
-        document.getElementById("cameraVideo");
-
-    if (!video.videoWidth) {
-
-        showError("Camera is not ready yet.");
-
+    if (!file) {
+        alert('Please upload an image first.');
         return;
-
     }
 
-    const canvas = document.createElement("canvas");
+    const classes = ['Arabika', 'Ekselsa', 'Liberika', 'Robusta'];
 
-    canvas.width = video.videoWidth;
+    const randomClass = classes[Math.floor(Math.random() * classes.length)];
 
-    canvas.height = video.videoHeight;
+    const confidence = (80 + Math.random() * 19).toFixed(2);
 
-    const context = canvas.getContext("2d");
+    document.getElementById('scanResult').innerHTML = `
+        <div class="result-box">
+            <div class="metric-label">DEMO RESULT · NOT AI PREDICTION</div>
+            <div class="result-class">${randomClass}</div>
+            <div>Illustrative score: ${confidence}%</div>
 
-    context.drawImage(
-        video,
-        0,
-        0,
-        canvas.width,
-        canvas.height
-    );
+            <div class="confidence-bar">
+                <div class="confidence-fill" style="width:${confidence}%"></div>
+            </div>
 
-    // Mengubah gambar canvas menjadi file JPEG
-    canvas.toBlob(blob => {
-
-        selectedFile = new File(
-            [blob],
-            "camera_capture.jpg",
-            { type: "image/jpeg" }
-        );
-
-        document.getElementById("previewImage").src =
-            URL.createObjectURL(blob);
-
-        document.getElementById("previewArea").style.display =
-            "block";
-
-        document.getElementById("resultBox").style.display =
-            "none";
-
-        stopCamera();
-
-        hideError();
-
-    }, "image/jpeg", 0.95);
-
-}
-
-
-/* =====================================
-   17. RUN YOLO DETECTION
-   Mengirim gambar ke backend Python
-   ===================================== */
-
-async function runDetection() {
-
-    if (!selectedFile) {
-
-        showError(
-            "Please upload or capture an image first."
-        );
-
-        return;
-
-    }
-
-    hideError();
-
-    document.getElementById("resultBox").style.display =
-        "none";
-
-    document.getElementById("loading").style.display =
-        "block";
-
-
-    // FormData digunakan untuk mengirim file gambar
-    const formData = new FormData();
-
-    formData.append("file", selectedFile);
-
-    formData.append("conf", confidenceSlider.value);
-
-    formData.append(
-        "imgsz",
-        document.getElementById("imageSize").value
-    );
-
-    formData.append(
-        "show_boxes",
-        document.getElementById("showBoxes").checked
-    );
-
-    formData.append(
-        "show_masks",
-        document.getElementById("showMasks").checked
-    );
-
-
-    try {
-
-        // Kirim gambar ke endpoint prediksi
-        const result = await apiRequest("/api/predict", {
-
-            method: "POST",
-
-            body: formData
-
-        });
-
-        // Tampilkan hasil prediksi
-        displayResult(result);
-
-        // Perbarui dashboard
-        loadDashboard();
-
-    } catch (error) {
-
-        showError(
-            "Detection failed: " + error.message +
-            ". Make sure the Python backend is running."
-        );
-
-    } finally {
-
-        document.getElementById("loading").style.display =
-            "none";
-
-    }
-
-}
-
-
-/* =====================================
-   18. DISPLAY DETECTION RESULT
-   Menampilkan hasil dari YOLO
-   ===================================== */
-
-function displayResult(data) {
-
-    const detections = data.detections || [];
-
-    const firstDetection = detections[0] || {};
-
-    const className =
-        data.predicted_class ||
-        firstDetection.class_name ||
-        firstDetection.name ||
-        "No Detection";
-
-    const confidence =
-        data.confidence ??
-        firstDetection.confidence ??
-        null;
-
-    const instances =
-        data.instances ??
-        detections.length ??
-        0;
-
-    const processing =
-        data.processing_time ??
-        data.inference_time ??
-        null;
-
-
-    // Nama kelas hasil identifikasi
-    document.getElementById("predictedClass").textContent =
-        className;
-
-
-    // Confidence score
-    document.getElementById("confidenceResult").textContent =
-        confidence === null
-        ? "—"
-        : formatConfidence(confidence);
-
-
-    // Jumlah objek yang terdeteksi
-    document.getElementById("instancesResult").textContent =
-        instances;
-
-
-    // Waktu pemrosesan
-    document.getElementById("processingResult").textContent =
-        processing === null
-        ? "—"
-        : `${Number(processing).toFixed(2)} ms`;
-
-
-    // Gambar hasil deteksi dari backend
-    const resultImage =
-        document.getElementById("resultImage");
-
-    const imageData =
-        data.result_image ||
-        data.image ||
-        data.annotated_image;
-
-
-    if (imageData) {
-
-        if (
-            imageData.startsWith("data:") ||
-            imageData.startsWith("http")
-        ) {
-
-            resultImage.src = imageData;
-
-        } else {
-
-            resultImage.src =
-                "data:image/jpeg;base64," + imageData;
-
-        }
-
-        resultImage.style.display = "block";
-
-    } else {
-
-        resultImage.style.display = "none";
-
-    }
-
-
-    // Tampilkan panel hasil
-    document.getElementById("resultBox").style.display =
-        "block";
-
-}
-
-
-/* =====================================
-   19. DASHBOARD DATA
-   Mengambil data riwayat dari backend
-   ===================================== */
-
-async function loadDashboard() {
-
-    try {
-
-        const data = await apiRequest("/api/history");
-
-        const records = Array.isArray(data)
-            ? data
-            : (data.history || data.records || []);
-
-        document.getElementById("totalDetections").textContent =
-            data.total ?? records.length;
-
-
-        // Menghitung rata-rata confidence
-        const confidenceValues = records
-
-            .map(item => Number(item.confidence))
-
-            .filter(value => Number.isFinite(value));
-
-
-        const average = confidenceValues.length
-
-            ? confidenceValues.reduce((a, b) => a + b, 0)
-              / confidenceValues.length
-
-            : null;
-
-
-        document.getElementById("averageConfidence").textContent =
-            average === null
-            ? "—"
-            : formatConfidence(average);
-
-
-    } catch (error) {
-
-        document.getElementById("totalDetections").textContent =
-            "—";
-
-        document.getElementById("averageConfidence").textContent =
-            "—";
-
-    }
-
-}
-
-
-/* =====================================
-   20. ANALYTICS
-   Menghitung distribusi kelas hasil deteksi
-   ===================================== */
-
-async function loadAnalytics() {
-
-    try {
-
-        const data = await apiRequest("/api/history");
-
-        const records = Array.isArray(data)
-            ? data
-            : (data.history || data.records || []);
-
-
-        document.getElementById("analyticsTotal").textContent =
-            data.total ?? records.length;
-
-
-        const confidenceValues = records
-
-            .map(item => Number(item.confidence))
-
-            .filter(value => Number.isFinite(value));
-
-
-        const average = confidenceValues.length
-
-            ? confidenceValues.reduce((a, b) => a + b, 0)
-              / confidenceValues.length
-
-            : null;
-
-
-        document.getElementById("analyticsAverage").textContent =
-            average === null
-            ? "—"
-            : formatConfidence(average);
-
-
-        // Siapkan jumlah setiap kelas
-        const counts = {};
-
-        CLASS_NAMES.forEach(name => {
-            counts[name] = 0;
-        });
-
-
-        // Hitung hasil deteksi berdasarkan nama kelas
-        records.forEach(record => {
-
-            const name =
-                record.class_name ||
-                record.predicted_class;
-
-            if (name && counts[name] !== undefined) {
-
-                counts[name] += Number(record.instances || 1);
-
-            }
-
-        });
-
-
-        const total =
-            Object.values(counts).reduce((a, b) => a + b, 0);
-
-
-        const container =
-            document.getElementById("analyticsDistribution");
-
-        container.innerHTML = "";
-
-
-        // Buat progress bar setiap kelas
-        CLASS_NAMES.forEach(name => {
-
-            const percentage = total
-                ? (counts[name] / total) * 100
-                : 0;
-
-            const row = document.createElement("div");
-
-            row.innerHTML = `
-
-                <div class="class-row">
-                    <strong>${name}</strong>
-                    <span>
-                        ${counts[name]} detections
-                        (${percentage.toFixed(1)}%)
-                    </span>
-                </div>
-
-                <div class="progress">
-                    <div style="width:${percentage}%"></div>
-                </div>
-
-            `;
-
-            container.appendChild(row);
-
-        });
-
-
-    } catch (error) {
-
-        document.getElementById("analyticsTotal").textContent =
-            "—";
-
-        document.getElementById("analyticsAverage").textContent =
-            "—";
-
-        document.getElementById("analyticsDistribution").innerHTML =
-
-            '<div class="empty-state">' +
-            'Unable to retrieve analytics. Check backend connection.' +
-            '</div>';
-
-    }
-
-}
-
-
-/* =====================================
-   21. DETECTION HISTORY
-   Menampilkan riwayat hasil identifikasi
-   ===================================== */
-
-async function loadHistory() {
-
-    const table =
-        document.getElementById("historyTable");
-
-
-    table.innerHTML = `
-
-        <tr>
-            <td colspan="5" class="empty-state">
-                Loading...
-            </td>
-        </tr>
-
+            <p class="note">
+                This result is randomly generated for interface demonstration.
+            </p>
+        </div>
     `;
 
+    saveHistory(file, randomClass, confidence);
 
-    try {
+}
 
-        const data = await apiRequest("/api/history");
+/* Browser session history */
+function saveHistory(file, predictedClass, confidence) {
 
-        const records = Array.isArray(data)
-            ? data
-            : (data.history || data.records || []);
+    const reader = new FileReader();
 
+    reader.onload = function(e) {
 
-        if (!records.length) {
+        const entry = {
+            name: file.name,
+            image: e.target.result,
+            className: predictedClass,
+            confidence: confidence,
+            time: new Date().toLocaleString()
+        };
 
-            table.innerHTML = `
+        let history = JSON.parse(sessionStorage.getItem('coffeeHistory') || '[]');
 
-                <tr>
-                    <td colspan="5" class="empty-state">
-                        No detection records available.
-                    </td>
-                </tr>
+        history.unshift(entry);
 
-            `;
+        history = history.slice(0, 10);
 
-            return;
+        sessionStorage.setItem('coffeeHistory', JSON.stringify(history));
 
-        }
+        renderHistory();
+    };
 
+    reader.readAsDataURL(file);
+}
 
-        table.innerHTML = "";
+function renderHistory() {
 
+    const history = JSON.parse(sessionStorage.getItem('coffeeHistory') || '[]');
 
-        records.forEach((record, index) => {
+    const container = document.getElementById('historyContent');
 
-            const className =
-                record.class_name ||
-                record.predicted_class ||
-                "Unknown";
+    if (history.length === 0) {
+        container.innerHTML = '<p class="note">No images analyzed during this session.</p>';
+        return;
+    }
 
-            const confidence =
-                record.confidence === undefined
-                ? "—"
-                : formatConfidence(record.confidence);
+    container.innerHTML = history.map(function(item) {
 
-            const instances =
-                record.instances ?? "—";
-
-            const date =
-                record.date ||
-                record.timestamp ||
-                record.created_at ||
-                "—";
-
-
-            const row = document.createElement("tr");
-
-
-            // Buat kolom tabel
-            const values = [
-                index + 1,
-                className,
-                confidence,
-                instances,
-                date
-            ];
-
-
-            values.forEach((value, i) => {
-
-                const cell = document.createElement("td");
-
-                if (i === 1) {
-
-                    const tag =
-                        document.createElement("span");
-
-                    tag.className = "tag";
-
-                    tag.textContent = value;
-
-                    cell.appendChild(tag);
-
-                } else {
-
-                    cell.textContent = value;
-
-                }
-
-                row.appendChild(cell);
-
-            });
-
-
-            table.appendChild(row);
-
-        });
-
-
-    } catch (error) {
-
-        table.innerHTML = `
-
-            <tr>
-                <td colspan="5" class="empty-state">
-                    Unable to load history.
-                    Check backend connection.
-                </td>
-            </tr>
-
+        return `
+            <div style="display:flex;gap:15px;align-items:center;padding:15px 0;border-bottom:1px solid var(--line)">
+                <img src="${item.image}" style="width:75px;height:75px;object-fit:cover;border-radius:10px">
+                <div>
+                    <strong>${item.name}</strong>
+                    <p style="font-size:12px;margin-top:6px">Demo class: ${item.className}</p>
+                    <p style="font-size:11px;color:var(--muted);margin-top:4px">${item.confidence}% · ${item.time}</p>
+                </div>
+            </div>
         `;
 
-    }
+    }).join('');
+}
+
+function clearHistory() {
+
+    sessionStorage.removeItem('coffeeHistory');
+
+    renderHistory();
 
 }
 
+function resetScanner() {
 
-/* =====================================
-   22. UTILITY FUNCTIONS
-   Fungsi pendukung
-   ===================================== */
+    imageInput.value = '';
 
+    document.getElementById('previewContainer').innerHTML = '';
 
-/*
-    Mengubah confidence ke format persentase.
-    Nilai 0.85 akan menjadi 85.00%.
-    Nilai 85 akan tetap menjadi 85.00%.
-*/
-
-function formatConfidence(value) {
-
-    let number = Number(value);
-
-    if (!Number.isFinite(number)) {
-        return "—";
-    }
-
-    if (number <= 1) {
-        number *= 100;
-    }
-
-    return number.toFixed(2) + "%";
+    document.getElementById('scanResult').innerHTML = '';
 
 }
 
-
-/* Menampilkan pesan error */
-function showError(message) {
-
-    const box =
-        document.getElementById("errorMessage");
-
-    box.textContent = message;
-
-    box.style.display = "block";
-
-}
-
-
-/* Menyembunyikan pesan error */
-function hideError() {
-
-    document.getElementById("errorMessage").style.display =
-        "none";
-
-}
-
-
-/* =====================================
-   23. INITIALIZATION
-   Dijalankan saat halaman dibuka
-   ===================================== */
-
-document.addEventListener("DOMContentLoaded", () => {
-
-    // Periksa koneksi backend
-    checkStatus();
-
-    // Muat data dashboard
-    loadDashboard();
-
-    // Periksa status backend setiap 15 detik
-    setInterval(checkStatus, 15000);
-
-});
+/* Initialize history */
+renderHistory();
 
 </script>
 
