@@ -1,11 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>PHOTO COFFEE | Coffee Identification System</title>
 
 <style>
+
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap');
 
 :root {
@@ -156,8 +160,15 @@ body {
 }
 
 @keyframes fade {
-    from { opacity: 0; transform: translateY(5px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .topbar {
@@ -241,6 +252,8 @@ h1 {
     margin-top: 9px;
 }
 
+/* Hero */
+
 .hero {
     background: linear-gradient(125deg, #38271C, #6A4B34);
     color: #FFF9F1;
@@ -281,6 +294,8 @@ h1 {
     max-width: 550px;
 }
 
+/* Buttons */
+
 .btn {
     background: var(--brown);
     border: none;
@@ -291,6 +306,9 @@ h1 {
     font-weight: 600;
     cursor: pointer;
     transition: 0.2s;
+    display: inline-block;
+    text-decoration: none;
+    font-size: 13px;
 }
 
 .btn:hover {
@@ -312,6 +330,8 @@ h1 {
     background: #C18A56;
     color: #241910;
 }
+
+/* Coffee classes */
 
 .class-card {
     display: flex;
@@ -339,6 +359,8 @@ h1 {
     font-size: 11px;
     color: var(--muted);
 }
+
+/* Workflow */
 
 .workflow {
     display: flex;
@@ -373,6 +395,40 @@ h1 {
 }
 
 /* Scanner */
+
+.scanner-tabs {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.scanner-tab {
+    padding: 11px 17px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: #F7F2EA;
+    color: var(--brown);
+    font-family: inherit;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    transition: 0.2s;
+}
+
+.scanner-tab:hover,
+.scanner-tab.active {
+    background: var(--brown);
+    color: white;
+}
+
+.scanner-panel {
+    display: none;
+}
+
+.scanner-panel.active {
+    display: block;
+}
 
 .upload-box {
     border: 2px dashed #D9CBBB;
@@ -413,32 +469,27 @@ input[type="file"] {
     object-fit: contain;
 }
 
+.camera-preview {
+    width: 100%;
+    max-height: 460px;
+    object-fit: contain;
+    background: #211812;
+    border-radius: 13px;
+    margin-top: 15px;
+}
+
+.camera-status {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 12px;
+    line-height: 1.7;
+}
+
 .result-box {
     margin-top: 22px;
     padding: 20px;
     background: #F0E8DC;
     border-radius: 14px;
-}
-
-.result-class {
-    font-family: 'Playfair Display', serif;
-    font-size: 30px;
-    margin: 8px 0;
-}
-
-.confidence-bar {
-    width: 100%;
-    height: 10px;
-    background: #DCD0C1;
-    border-radius: 20px;
-    margin-top: 12px;
-    overflow: hidden;
-}
-
-.confidence-fill {
-    height: 100%;
-    background: var(--caramel);
-    border-radius: 20px;
 }
 
 .note {
@@ -448,22 +499,32 @@ input[type="file"] {
     margin-top: 15px;
 }
 
-.table {
-    width: 100%;
-    border-collapse: collapse;
+.scanner-info {
+    margin-top: 20px;
+    background: #F0E8DC;
+    border-radius: 13px;
+    padding: 18px;
+}
+
+.scanner-info h3 {
+    font-size: 14px;
+    margin-bottom: 9px;
+}
+
+.scanner-info p {
     font-size: 12px;
+    line-height: 1.8;
+    color: #65574C;
 }
 
-.table th, .table td {
-    padding: 13px 10px;
-    text-align: left;
-    border-bottom: 1px solid var(--line);
+.camera-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 15px;
 }
 
-.table th {
-    color: var(--muted);
-    font-weight: 500;
-}
+/* Analytics */
 
 .bar-row {
     margin: 17px 0;
@@ -489,6 +550,28 @@ input[type="file"] {
     border-radius: 20px;
 }
 
+/* Table */
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+
+.table th,
+.table td {
+    padding: 13px 10px;
+    text-align: left;
+    border-bottom: 1px solid var(--line);
+}
+
+.table th {
+    color: var(--muted);
+    font-weight: 500;
+}
+
+/* About */
+
 .about-box {
     line-height: 1.8;
     color: #65574C;
@@ -499,6 +582,8 @@ input[type="file"] {
     color: var(--dark);
     margin: 20px 0 10px;
 }
+
+/* Footer */
 
 .footer {
     border-top: 1px solid var(--line);
@@ -518,6 +603,7 @@ input[type="file"] {
 /* Mobile responsiveness */
 
 @media(max-width: 1050px) {
+
     .main {
         padding: 30px;
     }
@@ -536,6 +622,7 @@ input[type="file"] {
 }
 
 @media(max-width: 700px) {
+
     .sidebar {
         width: 75px;
         padding: 20px 10px;
@@ -585,7 +672,9 @@ input[type="file"] {
         font-size: 25px;
     }
 
-    .grid-4, .grid-3, .grid-2 {
+    .grid-4,
+    .grid-3,
+    .grid-2 {
         grid-template-columns: 1fr;
     }
 
@@ -600,360 +689,967 @@ input[type="file"] {
     .footer {
         flex-direction: column;
     }
+
+    .table {
+        font-size: 10px;
+    }
+
 }
+
 </style>
+
 </head>
 
 <body>
 
 <div class="layout">
 
-<!-- Sidebar navigation -->
+<!-- SIDEBAR -->
+
 <aside class="sidebar">
 
     <div class="brand">
+
         <div class="brand-icon">☕</div>
+
         <div class="brand-text">
+
             <div class="brand-name">PHOTO COFFEE</div>
-            <div class="brand-sub">COFFEE IDENTIFICATION</div>
+
+            <div class="brand-sub">
+                COFFEE IDENTIFICATION
+            </div>
+
         </div>
+
     </div>
 
     <div class="nav-label">MAIN MENU</div>
 
-    <div class="nav-item active" onclick="navigate('dashboard', this)">
+    <div class="nav-item active"
+         onclick="navigate('dashboard', this)">
+
         <span class="nav-icon">⌂</span>
         <span class="nav-text">Dashboard</span>
+
     </div>
 
-    <div class="nav-item" onclick="navigate('scanner', this)">
+    <div class="nav-item"
+         onclick="navigate('scanner', this)">
+
         <span class="nav-icon">⌕</span>
         <span class="nav-text">Coffee Scanner</span>
+
     </div>
 
-    <div class="nav-item" onclick="navigate('analytics', this)">
+    <div class="nav-item"
+         onclick="navigate('analytics', this)">
+
         <span class="nav-icon">▥</span>
         <span class="nav-text">Analytics</span>
+
     </div>
 
-    <div class="nav-item" onclick="navigate('history', this)">
+    <div class="nav-item"
+         onclick="navigate('history', this)">
+
         <span class="nav-icon">◷</span>
-        <span class="nav-text">History</span>
+        <span class="nav-text">Detection History</span>
+
     </div>
 
-    <div class="nav-item" onclick="navigate('about', this)">
+    <div class="nav-item"
+         onclick="navigate('about', this)">
+
         <span class="nav-icon">ⓘ</span>
         <span class="nav-text">About System</span>
+
     </div>
 
     <div class="sidebar-bottom">
+
         <div class="status">
+
             <span class="status-dot"></span>
+
             <span>Web Interface Online</span>
+
         </div>
+
     </div>
 
 </aside>
 
-<!-- Main area -->
+
+<!-- MAIN CONTENT -->
+
 <main class="main">
 
 <div class="topbar">
-    <div class="breadcrumb">PHOTO COFFEE / <span id="breadcrumb">DASHBOARD</span></div>
-    <div class="top-tag">COFFEE AI TECHNOLOGY</div>
+
+    <div class="breadcrumb">
+
+        PHOTO COFFEE /
+        <span id="breadcrumb">DASHBOARD</span>
+
+    </div>
+
+    <div class="top-tag">
+        COFFEE AI TECHNOLOGY
+    </div>
+
 </div>
 
-<!-- Dashboard page -->
+
+<!-- ===================================================== -->
+<!-- DASHBOARD -->
+<!-- ===================================================== -->
+
 <section id="dashboard" class="page active">
 
     <h1>Dashboard Overview</h1>
-    <p class="subtitle">Coffee identification and visual analysis system.</p>
+
+    <p class="subtitle">
+        Coffee identification and visual analysis system.
+    </p>
 
     <div class="hero">
-        <div class="hero-tag">COFFEE IDENTIFICATION SYSTEM</div>
-        <h2>Discover the Identity<br>of Your Coffee.</h2>
+
+        <div class="hero-tag">
+            COFFEE IDENTIFICATION SYSTEM
+        </div>
+
+        <h2>
+            Discover the Identity<br>
+            of Your Coffee.
+        </h2>
+
         <p>
-            An image-based coffee classification platform designed to explore
-            the visual characteristics of Arabika, Ekselsa, Liberika, and Robusta
-            coffee beans through digital image processing and computer vision.
+            An intelligent coffee bean identification system
+            powered by digital image processing, computer vision,
+            and YOLOv8 instance segmentation technology.
+            Explore Arabika, Ekselsa, Liberika, and Robusta coffee beans.
         </p>
-        <button class="btn" onclick="navigateById('scanner')">Open Coffee Scanner →</button>
+
+        <button class="btn"
+                onclick="navigateById('scanner')">
+
+            Open Coffee Scanner →
+
+        </button>
+
     </div>
+
 
     <div class="grid grid-4" style="margin-bottom:28px">
 
         <div class="card">
-            <div class="metric-label">Coffee Varieties</div>
+
+            <div class="metric-label">
+                Coffee Varieties
+            </div>
+
             <div class="metric-value">04</div>
-            <div class="metric-foot">Supported classes</div>
+
+            <div class="metric-foot">
+                Supported classes
+            </div>
+
         </div>
 
+
         <div class="card">
-            <div class="metric-label">Technology</div>
+
+            <div class="metric-label">
+                Model Architecture
+            </div>
+
             <div class="metric-value">YOLOv8</div>
-            <div class="metric-foot">Segmentation-based concept</div>
+
+            <div class="metric-foot">
+                Instance segmentation
+            </div>
+
         </div>
 
+
         <div class="card">
-            <div class="metric-label">System</div>
+
+            <div class="metric-label">
+                Computer Vision
+            </div>
+
             <div class="metric-value">AI Vision</div>
-            <div class="metric-foot">Computer vision platform</div>
+
+            <div class="metric-foot">
+                Image-based identification
+            </div>
+
         </div>
 
+
         <div class="card">
-            <div class="metric-label">Interface</div>
+
+            <div class="metric-label">
+                Application
+            </div>
+
             <div class="metric-value">Web App</div>
-            <div class="metric-foot">Responsive interface</div>
+
+            <div class="metric-foot">
+                Interactive interface
+            </div>
+
         </div>
 
     </div>
 
-    <h2 class="section-title">Coffee Varieties</h2>
+
+    <h2 class="section-title">
+        Coffee Varieties
+    </h2>
+
 
     <div class="grid grid-2" style="margin-bottom:28px">
 
         <div class="card class-card">
+
             <div class="coffee-icon">☕</div>
+
             <div>
                 <h3>Arabika</h3>
                 <p>Coffea arabica</p>
             </div>
+
         </div>
 
+
         <div class="card class-card">
+
             <div class="coffee-icon">🫘</div>
+
             <div>
                 <h3>Ekselsa</h3>
                 <p>Coffea excelsa</p>
             </div>
+
         </div>
 
+
         <div class="card class-card">
+
             <div class="coffee-icon">🌿</div>
+
             <div>
                 <h3>Liberika</h3>
                 <p>Coffea liberica</p>
             </div>
+
         </div>
 
+
         <div class="card class-card">
+
             <div class="coffee-icon">🍂</div>
+
             <div>
                 <h3>Robusta</h3>
                 <p>Coffea canephora</p>
             </div>
+
         </div>
 
     </div>
 
-    <h2 class="section-title">System Workflow</h2>
+
+    <h2 class="section-title">
+        System Workflow
+    </h2>
+
 
     <div class="workflow">
 
         <div class="workflow-step">
+
             <div class="step-number">STEP 01</div>
-            <h4>Image Input</h4>
-            <p>Upload coffee bean imagery for visual analysis.</p>
+
+            <h4>Image Acquisition</h4>
+
+            <p>
+                Upload an image or capture coffee beans
+                using a camera.
+            </p>
+
         </div>
 
+
         <div class="workflow-step">
+
             <div class="step-number">STEP 02</div>
-            <h4>Image Processing</h4>
-            <p>Image preparation and visual feature analysis.</p>
+
+            <h4>Object Detection</h4>
+
+            <p>
+                Detect coffee bean objects using
+                the trained YOLOv8 model.
+            </p>
+
         </div>
 
+
         <div class="workflow-step">
+
             <div class="step-number">STEP 03</div>
-            <h4>Classification</h4>
-            <p>Visual identification of coffee varieties.</p>
+
+            <h4>Instance Segmentation</h4>
+
+            <p>
+                Generate segmentation masks
+                for individual coffee beans.
+            </p>
+
         </div>
 
+
         <div class="workflow-step">
+
             <div class="step-number">STEP 04</div>
-            <h4>Visualization</h4>
-            <p>Present detection information and results.</p>
+
+            <h4>Classification</h4>
+
+            <p>
+                Identify the corresponding
+                coffee bean varieties.
+            </p>
+
         </div>
 
     </div>
 
 </section>
 
-<!-- Coffee scanner page -->
+
+<!-- ===================================================== -->
+<!-- COFFEE SCANNER -->
+<!-- ===================================================== -->
+
 <section id="scanner" class="page">
 
     <h1>Coffee Scanner</h1>
-    <p class="subtitle">Upload a coffee bean image to explore the scanner interface.</p>
+
+    <p class="subtitle">
+        Detect, segment, and classify coffee beans
+        using the PHOTO COFFEE system.
+    </p>
+
 
     <div class="card">
 
-        <div class="upload-box">
-            <div class="upload-icon">📷</div>
-            <h3>Upload Coffee Image</h3>
-            <p>Select an image file to preview the scanner interface.</p>
-            <input type="file" id="imageInput" accept="image/*">
-            <div id="previewContainer"></div>
+        <h2 class="section-title">
+            Image Input
+        </h2>
+
+
+        <div class="scanner-tabs">
+
+            <button class="scanner-tab active"
+                    onclick="switchScanner('upload', this)">
+
+                Upload Image
+
+            </button>
+
+
+            <button class="scanner-tab"
+                    onclick="switchScanner('camera', this)">
+
+                Camera
+
+            </button>
+
+
+            <button class="scanner-tab"
+                    onclick="switchScanner('webcam', this)">
+
+                Live Webcam
+
+            </button>
+
         </div>
 
-        <button class="btn" onclick="scanImage()">Analyze Image</button>
-        <button class="btn btn-light" onclick="resetScanner()">Reset</button>
 
-        <div id="scanResult"></div>
+        <!-- UPLOAD IMAGE -->
+
+        <div id="uploadPanel"
+             class="scanner-panel active">
+
+            <div class="upload-box">
+
+                <div class="upload-icon">📁</div>
+
+                <h3>Upload Coffee Image</h3>
+
+                <p>
+                    Select an image of coffee beans
+                    for analysis.
+                </p>
+
+                <input type="file"
+                       id="imageInput"
+                       accept="image/jpeg,image/png,image/webp">
+
+                <div id="previewContainer"></div>
+
+            </div>
+
+            <div class="camera-actions">
+
+                <button class="btn"
+                        onclick="openAIApp()">
+
+                    Open AI Scanner →
+
+                </button>
+
+                <button class="btn btn-light"
+                        onclick="resetScanner()">
+
+                    Reset
+
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- CAMERA -->
+
+        <div id="cameraPanel"
+             class="scanner-panel">
+
+            <div class="upload-box">
+
+                <div class="upload-icon">📷</div>
+
+                <h3>Capture Coffee Image</h3>
+
+                <p>
+                    Use your device camera to capture
+                    an image of coffee beans.
+                </p>
+
+                <button class="btn"
+                        onclick="startCamera('photo')">
+
+                    Open Camera
+
+                </button>
+
+                <video id="photoCamera"
+                       class="camera-preview"
+                       autoplay
+                       playsinline
+                       style="display:none">
+
+                </video>
+
+                <canvas id="photoCanvas"
+                        style="display:none">
+
+                </canvas>
+
+                <div class="camera-actions"
+                     id="photoActions"
+                     style="display:none">
+
+                    <button class="btn"
+                            onclick="capturePhoto()">
+
+                        Capture Photo
+
+                    </button>
+
+                    <button class="btn btn-light"
+                            onclick="stopCamera()">
+
+                        Stop Camera
+
+                    </button>
+
+                </div>
+
+                <div id="capturedPhoto"></div>
+
+            </div>
+
+            <button class="btn"
+                    onclick="openAIApp()">
+
+                Continue to AI Scanner →
+
+            </button>
+
+        </div>
+
+
+        <!-- LIVE WEBCAM -->
+
+        <div id="webcamPanel"
+             class="scanner-panel">
+
+            <div class="upload-box">
+
+                <div class="upload-icon">🎥</div>
+
+                <h3>Live Webcam</h3>
+
+                <p>
+                    Start your webcam to view coffee beans
+                    in real time.
+                </p>
+
+                <video id="liveCamera"
+                       class="camera-preview"
+                       autoplay
+                       playsinline
+                       muted
+                       style="display:none">
+
+                </video>
+
+                <div class="camera-actions">
+
+                    <button class="btn"
+                            onclick="startCamera('live')">
+
+                        Start Live Webcam
+
+                    </button>
+
+                    <button class="btn btn-light"
+                            onclick="stopCamera()">
+
+                        Stop Webcam
+
+                    </button>
+
+                </div>
+
+                <p id="webcamStatus"
+                   class="camera-status">
+
+                    Webcam is currently inactive.
+
+                </p>
+
+            </div>
+
+
+            <div class="scanner-info">
+
+                <h3>YOLOv8 Live Detection</h3>
+
+                <p>
+                    Live object detection and instance segmentation
+                    are performed by the PHOTO COFFEE AI application.
+                    The browser preview alone does not perform
+                    YOLOv8 inference.
+                </p>
+
+                <br>
+
+                <button class="btn"
+                        onclick="openAIApp()">
+
+                    Open Live AI Detection →
+
+                </button>
+
+            </div>
+
+        </div>
 
     </div>
 
-    <div class="card" style="margin-top:20px">
-        <h3 style="margin-bottom:10px">Scanner Information</h3>
-        <p class="note">
-            This GitHub Pages version is a frontend demonstration.
-            The uploaded image is previewed locally in your browser.
-            Classification results shown in demo mode are randomly generated
-            and are not predictions from the trained YOLOv8 model.
+
+    <div class="scanner-info">
+
+        <h3>Scanner Information</h3>
+
+        <p>
+            PHOTO COFFEE uses a trained YOLOv8 Instance Segmentation
+            model to detect and classify four coffee bean varieties:
+            Arabika, Ekselsa, Liberika, and Robusta.
         </p>
+
+        <p class="note">
+            Actual AI predictions require connection to the
+            PHOTO COFFEE Streamlit application.
+        </p>
+
     </div>
 
 </section>
 
-<!-- Analytics page -->
+
+<!-- ===================================================== -->
+<!-- ANALYTICS -->
+<!-- ===================================================== -->
+
 <section id="analytics" class="page">
 
-    <h1>Analytics</h1>
-    <p class="subtitle">Visual overview of coffee classification categories.</p>
+    <h1>Detection Analytics</h1>
 
-    <div class="grid grid-4" style="margin-bottom:25px">
+    <p class="subtitle">
+        Overview of the four coffee bean classification categories.
+    </p>
+
+
+    <div class="grid grid-4"
+         style="margin-bottom:25px">
 
         <div class="card">
-            <div class="metric-label">Classes</div>
+
+            <div class="metric-label">
+                Coffee Classes
+            </div>
+
             <div class="metric-value">4</div>
+
+            <div class="metric-foot">
+                Classification categories
+            </div>
+
         </div>
 
+
         <div class="card">
-            <div class="metric-label">Model Concept</div>
+
+            <div class="metric-label">
+                Architecture
+            </div>
+
             <div class="metric-value">YOLOv8</div>
+
+            <div class="metric-foot">
+                Deep learning
+            </div>
+
         </div>
 
-        <div class="card">
-            <div class="metric-label">Analysis</div>
-            <div class="metric-value">Visual</div>
-        </div>
 
         <div class="card">
-            <div class="metric-label">Platform</div>
-            <div class="metric-value">Web</div>
+
+            <div class="metric-label">
+                Model Task
+            </div>
+
+            <div class="metric-value">Segmentation</div>
+
+            <div class="metric-foot">
+                Instance segmentation
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <div class="metric-label">
+                Detection
+            </div>
+
+            <div class="metric-value">AI Vision</div>
+
+            <div class="metric-foot">
+                Object-level analysis
+            </div>
+
         </div>
 
     </div>
 
+
     <div class="card">
-        <h2 class="section-title">Coffee Categories</h2>
+
+        <h2 class="section-title">
+            Coffee Classification Categories
+        </h2>
+
 
         <div class="bar-row">
-            <div class="bar-label"><span>Arabika</span><span>Class 01</span></div>
-            <div class="bar"><div class="bar-fill" style="width:85%"></div></div>
+
+            <div class="bar-label">
+                <span>Arabika</span>
+                <span>Class 01</span>
+            </div>
+
+            <div class="bar">
+                <div class="bar-fill" style="width:100%"></div>
+            </div>
+
         </div>
 
-        <div class="bar-row">
-            <div class="bar-label"><span>Ekselsa</span><span>Class 02</span></div>
-            <div class="bar"><div class="bar-fill" style="width:70%"></div></div>
-        </div>
 
         <div class="bar-row">
-            <div class="bar-label"><span>Liberika</span><span>Class 03</span></div>
-            <div class="bar"><div class="bar-fill" style="width:65%"></div></div>
+
+            <div class="bar-label">
+                <span>Ekselsa</span>
+                <span>Class 02</span>
+            </div>
+
+            <div class="bar">
+                <div class="bar-fill" style="width:100%"></div>
+            </div>
+
         </div>
 
+
         <div class="bar-row">
-            <div class="bar-label"><span>Robusta</span><span>Class 04</span></div>
-            <div class="bar"><div class="bar-fill" style="width:80%"></div></div>
+
+            <div class="bar-label">
+                <span>Liberika</span>
+                <span>Class 03</span>
+            </div>
+
+            <div class="bar">
+                <div class="bar-fill" style="width:100%"></div>
+            </div>
+
         </div>
+
+
+        <div class="bar-row">
+
+            <div class="bar-label">
+                <span>Robusta</span>
+                <span>Class 04</span>
+            </div>
+
+            <div class="bar">
+                <div class="bar-fill" style="width:100%"></div>
+            </div>
+
+        </div>
+
 
         <p class="note">
-            The visual bars above are illustrative UI elements, not model
-            evaluation metrics or measured class performance.
+            The bars represent the four supported classification
+            categories, not model accuracy or detection performance.
         </p>
+
     </div>
 
-</section>
 
-<!-- History page -->
-<section id="history" class="page">
+    <div class="scanner-info">
 
-    <h1>Detection History</h1>
-    <p class="subtitle">Recent images analyzed during this browser session.</p>
+        <h3>Model Evaluation</h3>
 
-    <div class="card">
+        <p>
+            Actual evaluation results, including precision,
+            recall, mAP, and confusion matrix, should be obtained
+            from the trained YOLOv8 model evaluation.
+        </p>
 
-        <div id="historyContent">
-            <p class="note">No images have been analyzed during this session.</p>
-        </div>
+        <br>
 
-        <button class="btn btn-light" onclick="clearHistory()" style="margin-top:20px">
-            Clear History
+        <button class="btn"
+                onclick="openAIApp()">
+
+            Open PHOTO COFFEE Application →
+
         </button>
 
     </div>
 
 </section>
 
-<!-- About page -->
+
+<!-- ===================================================== -->
+<!-- DETECTION HISTORY -->
+<!-- ===================================================== -->
+
+<section id="history" class="page">
+
+    <h1>Detection History</h1>
+
+    <p class="subtitle">
+        Browse image previews saved during this browser session.
+    </p>
+
+
+    <div class="card">
+
+        <h2 class="section-title">
+            Recent Image Activity
+        </h2>
+
+        <div id="historyContent">
+
+            <p class="note">
+                No images have been analyzed during this session.
+            </p>
+
+        </div>
+
+        <button class="btn btn-light"
+                onclick="clearHistory()"
+                style="margin-top:20px">
+
+            Clear History
+
+        </button>
+
+    </div>
+
+
+    <div class="scanner-info">
+
+        <h3>AI Detection History</h3>
+
+        <p>
+            Complete detection records, including segmentation
+            images, confidence scores, and detected coffee varieties,
+            are stored by the PHOTO COFFEE Streamlit application.
+        </p>
+
+        <br>
+
+        <button class="btn"
+                onclick="openAIApp()">
+
+            Open Detection History →
+
+        </button>
+
+    </div>
+
+</section>
+
+
+<!-- ===================================================== -->
+<!-- ABOUT SYSTEM -->
+<!-- ===================================================== -->
+
 <section id="about" class="page">
 
     <h1>About System</h1>
-    <p class="subtitle">An introduction to the PHOTO COFFEE project.</p>
+
+    <p class="subtitle">
+        An introduction to the PHOTO COFFEE research project.
+    </p>
+
 
     <div class="card about-box">
 
-        <h2 class="section-title">PHOTO COFFEE</h2>
+        <h2 class="section-title">
+            PHOTO COFFEE
+        </h2>
 
         <p>
-            PHOTO COFFEE is a coffee identification system concept developed
-            using digital image processing, computer vision, and deep learning.
-            The project focuses on visual identification of coffee bean varieties.
+            PHOTO COFFEE is a coffee identification system
+            developed using digital image processing,
+            computer vision, and deep learning.
+            The system focuses on identifying green coffee
+            bean varieties through digital images.
         </p>
+
 
         <h3>Research Objective</h3>
 
         <p>
-            To explore the development of a computer vision-based system for
-            identifying Arabika, Ekselsa, Liberika, and Robusta coffee beans
-            through digital images.
+            To develop a computer vision-based system
+            for detecting and classifying Arabika, Ekselsa,
+            Liberika, and Robusta coffee beans using
+            YOLOv8 Instance Segmentation.
         </p>
+
 
         <h3>Classification Categories</h3>
 
         <p>
+            The system supports four coffee bean varieties:
             Arabika, Ekselsa, Liberika, and Robusta.
         </p>
+
+
+        <h3>Model Architecture</h3>
+
+        <p>
+            YOLOv8 Instance Segmentation is used to detect
+            individual coffee bean objects, generate
+            segmentation masks, and classify the detected
+            objects into their corresponding categories.
+        </p>
+
 
         <h3>Technology</h3>
 
         <p>
-            Python, YOLOv8 Segmentation, Digital Image Processing,
-            Computer Vision, and Web Interface.
+            Python, Streamlit, Ultralytics YOLOv8,
+            OpenCV, NumPy, Pandas, and Pillow.
         </p>
+
+
+        <h3>Application Features</h3>
+
+        <p>
+            Image upload, camera capture, live webcam detection,
+            segmentation visualization, detection analytics,
+            and detection history.
+        </p>
+
 
         <h3>Research Development</h3>
 
         <p>
-            This project is part of an undergraduate research development
-            initiative in Food Science and Technology, integrating agricultural
-            commodities with artificial intelligence and visual analysis.
+            This project is part of an undergraduate research
+            development initiative in Food Science and Technology,
+            integrating agricultural commodities with artificial
+            intelligence and computer vision.
         </p>
 
     </div>
 
 </section>
 
+
+<!-- FOOTER -->
+
 <footer class="footer">
-    <span>PHOTO COFFEE · Coffee Identification System</span>
-    <span>Digital Image Processing & Computer Vision</span>
+
+    <span>
+        PHOTO COFFEE · Coffee Identification System
+    </span>
+
+    <span>
+        YOLOv8 Instance Segmentation
+    </span>
+
 </footer>
 
 </main>
+
 </div>
+
 
 <script>
 
-/* Navigation */
+/* =====================================================
+   APPLICATION CONFIGURATION
+===================================================== */
+
+// Ganti URL berikut dengan URL aplikasi Streamlit PHOTO COFFEE.
+// Contoh: https://photo-coffee.streamlit.app
+
+const STREAMLIT_APP_URL = "YOUR_STREAMLIT_APP_URL";
+
+
+/* =====================================================
+   NAVIGATION
+===================================================== */
+
 function navigate(page, element) {
 
     document.querySelectorAll('.page').forEach(function(p) {
@@ -973,10 +1669,18 @@ function navigate(page, element) {
     document.getElementById('breadcrumb').textContent =
         page.replace('-', ' ').toUpperCase();
 
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    stopCamera();
+
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+    });
+
 }
 
+
 function navigateById(page) {
+
     const navItems = document.querySelectorAll('.nav-item');
 
     navItems.forEach(function(item) {
@@ -992,10 +1696,86 @@ function navigateById(page) {
     document.getElementById('breadcrumb').textContent =
         page.toUpperCase();
 
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    stopCamera();
+
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+    });
+
 }
 
-/* Image preview */
+
+/* =====================================================
+   CONNECT TO STREAMLIT AI APPLICATION
+===================================================== */
+
+function openAIApp() {
+
+    if (
+        !STREAMLIT_APP_URL ||
+        STREAMLIT_APP_URL === "YOUR_STREAMLIT_APP_URL"
+    ) {
+
+        alert(
+            "Please configure the PHOTO COFFEE Streamlit application URL first."
+        );
+
+        return;
+
+    }
+
+    window.open(
+        STREAMLIT_APP_URL,
+        '_blank'
+    );
+
+}
+
+
+/* =====================================================
+   SCANNER NAVIGATION
+===================================================== */
+
+function switchScanner(mode, button) {
+
+    document.querySelectorAll('.scanner-tab').forEach(function(tab) {
+        tab.classList.remove('active');
+    });
+
+    document.querySelectorAll('.scanner-panel').forEach(function(panel) {
+        panel.classList.remove('active');
+    });
+
+    button.classList.add('active');
+
+    if (mode === 'upload') {
+
+        document.getElementById('uploadPanel').classList.add('active');
+
+    }
+
+    else if (mode === 'camera') {
+
+        document.getElementById('cameraPanel').classList.add('active');
+
+    }
+
+    else if (mode === 'webcam') {
+
+        document.getElementById('webcamPanel').classList.add('active');
+
+    }
+
+    stopCamera();
+
+}
+
+
+/* =====================================================
+   IMAGE PREVIEW
+===================================================== */
+
 const imageInput = document.getElementById('imageInput');
 
 imageInput.addEventListener('change', function(event) {
@@ -1004,112 +1784,365 @@ imageInput.addEventListener('change', function(event) {
 
     if (!file) return;
 
+    if (!file.type.startsWith('image/')) {
+
+        alert('Please select a valid image.');
+
+        return;
+
+    }
+
     const reader = new FileReader();
 
     reader.onload = function(e) {
 
         document.getElementById('previewContainer').innerHTML = `
-            <img src="${e.target.result}" class="preview" id="previewImage">
+
+            <img
+                src="${e.target.result}"
+                class="preview"
+                alt="Coffee Preview"
+            >
+
         `;
 
-        document.getElementById('scanResult').innerHTML = '';
+        saveImageHistory(
+            file.name,
+            e.target.result
+        );
 
     };
 
     reader.readAsDataURL(file);
+
 });
 
-/* Demonstration scanner */
-function scanImage() {
 
-    const file = imageInput.files[0];
+/* =====================================================
+   CAMERA SYSTEM
+===================================================== */
 
-    if (!file) {
-        alert('Please upload an image first.');
-        return;
+let cameraStream = null;
+
+
+async function startCamera(mode) {
+
+    try {
+
+        stopCamera();
+
+        cameraStream = await navigator.mediaDevices.getUserMedia({
+
+            video: {
+                facingMode: "environment"
+            },
+
+            audio: false
+
+        });
+
+
+        if (mode === 'photo') {
+
+            const video = document.getElementById('photoCamera');
+
+            video.srcObject = cameraStream;
+
+            video.style.display = 'block';
+
+            document.getElementById('photoActions').style.display = 'flex';
+
+        }
+
+
+        else if (mode === 'live') {
+
+            const video = document.getElementById('liveCamera');
+
+            video.srcObject = cameraStream;
+
+            video.style.display = 'block';
+
+            document.getElementById('webcamStatus').textContent =
+                "Webcam is active. Browser preview is running.";
+
+        }
+
     }
 
-    const classes = ['Arabika', 'Ekselsa', 'Liberika', 'Robusta'];
+    catch (error) {
 
-    const randomClass = classes[Math.floor(Math.random() * classes.length)];
+        alert(
+            "Unable to access camera. Please allow camera permission and use HTTPS."
+        );
 
-    const confidence = (80 + Math.random() * 19).toFixed(2);
+        console.error(error);
 
-    document.getElementById('scanResult').innerHTML = `
+    }
+
+}
+
+
+/* =====================================================
+   CAPTURE PHOTO
+===================================================== */
+
+function capturePhoto() {
+
+    const video = document.getElementById('photoCamera');
+
+    const canvas = document.getElementById('photoCanvas');
+
+    if (!video.videoWidth) {
+
+        alert("Camera is not ready.");
+
+        return;
+
+    }
+
+    canvas.width = video.videoWidth;
+
+    canvas.height = video.videoHeight;
+
+    const context = canvas.getContext('2d');
+
+    context.drawImage(
+        video,
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+
+    const imageData = canvas.toDataURL('image/png');
+
+    document.getElementById('capturedPhoto').innerHTML = `
+
         <div class="result-box">
-            <div class="metric-label">DEMO RESULT · NOT AI PREDICTION</div>
-            <div class="result-class">${randomClass}</div>
-            <div>Illustrative score: ${confidence}%</div>
 
-            <div class="confidence-bar">
-                <div class="confidence-fill" style="width:${confidence}%"></div>
-            </div>
+            <h3>Captured Image</h3>
+
+            <img
+                src="${imageData}"
+                class="preview"
+                alt="Captured Coffee Image"
+            >
 
             <p class="note">
-                This result is randomly generated for interface demonstration.
+                Photo captured successfully.
+                Continue to the PHOTO COFFEE AI application
+                for actual detection.
             </p>
+
         </div>
+
     `;
 
-    saveHistory(file, randomClass, confidence);
+    saveImageHistory(
+        "Captured Coffee Image",
+        imageData
+    );
 
 }
 
-/* Browser session history */
-function saveHistory(file, predictedClass, confidence) {
 
-    const reader = new FileReader();
+/* =====================================================
+   STOP CAMERA
+===================================================== */
 
-    reader.onload = function(e) {
+function stopCamera() {
 
-        const entry = {
-            name: file.name,
-            image: e.target.result,
-            className: predictedClass,
-            confidence: confidence,
-            time: new Date().toLocaleString()
-        };
+    if (cameraStream) {
 
-        let history = JSON.parse(sessionStorage.getItem('coffeeHistory') || '[]');
+        cameraStream.getTracks().forEach(function(track) {
 
-        history.unshift(entry);
+            track.stop();
 
-        history = history.slice(0, 10);
+        });
 
-        sessionStorage.setItem('coffeeHistory', JSON.stringify(history));
+        cameraStream = null;
 
-        renderHistory();
+    }
+
+
+    const photoVideo = document.getElementById('photoCamera');
+
+    const liveVideo = document.getElementById('liveCamera');
+
+
+    if (photoVideo) {
+
+        photoVideo.srcObject = null;
+
+        photoVideo.style.display = 'none';
+
+    }
+
+
+    if (liveVideo) {
+
+        liveVideo.srcObject = null;
+
+        liveVideo.style.display = 'none';
+
+    }
+
+
+    const photoActions = document.getElementById('photoActions');
+
+    if (photoActions) {
+
+        photoActions.style.display = 'none';
+
+    }
+
+
+    const webcamStatus = document.getElementById('webcamStatus');
+
+    if (webcamStatus) {
+
+        webcamStatus.textContent =
+            "Webcam is currently inactive.";
+
+    }
+
+}
+
+
+/* =====================================================
+   BROWSER SESSION HISTORY
+===================================================== */
+
+function saveImageHistory(fileName, imageData) {
+
+    const entry = {
+
+        name: fileName,
+
+        image: imageData,
+
+        time: new Date().toLocaleString()
+
     };
 
-    reader.readAsDataURL(file);
+
+    let history = JSON.parse(
+
+        sessionStorage.getItem('coffeeHistory') || '[]'
+
+    );
+
+
+    history.unshift(entry);
+
+    history = history.slice(0, 10);
+
+
+    sessionStorage.setItem(
+
+        'coffeeHistory',
+
+        JSON.stringify(history)
+
+    );
+
+
+    renderHistory();
+
 }
+
 
 function renderHistory() {
 
-    const history = JSON.parse(sessionStorage.getItem('coffeeHistory') || '[]');
+    const history = JSON.parse(
+
+        sessionStorage.getItem('coffeeHistory') || '[]'
+
+    );
+
 
     const container = document.getElementById('historyContent');
 
+
     if (history.length === 0) {
-        container.innerHTML = '<p class="note">No images analyzed during this session.</p>';
+
+        container.innerHTML = `
+
+            <p class="note">
+
+                No images have been analyzed during this session.
+
+            </p>
+
+        `;
+
         return;
+
     }
+
 
     container.innerHTML = history.map(function(item) {
 
         return `
-            <div style="display:flex;gap:15px;align-items:center;padding:15px 0;border-bottom:1px solid var(--line)">
-                <img src="${item.image}" style="width:75px;height:75px;object-fit:cover;border-radius:10px">
+
+            <div style="
+                display:flex;
+                gap:15px;
+                align-items:center;
+                padding:15px 0;
+                border-bottom:1px solid var(--line)
+            ">
+
+                <img
+                    src="${item.image}"
+                    style="
+                        width:75px;
+                        height:75px;
+                        object-fit:cover;
+                        border-radius:10px
+                    "
+                    alt="Coffee History"
+                >
+
                 <div>
-                    <strong>${item.name}</strong>
-                    <p style="font-size:12px;margin-top:6px">Demo class: ${item.className}</p>
-                    <p style="font-size:11px;color:var(--muted);margin-top:4px">${item.confidence}% · ${item.time}</p>
+
+                    <strong>${escapeHTML(item.name)}</strong>
+
+                    <p style="
+                        font-size:11px;
+                        color:var(--muted);
+                        margin-top:6px
+                    ">
+
+                        ${escapeHTML(item.time)}
+
+                    </p>
+
+                    <p style="
+                        font-size:11px;
+                        color:var(--green);
+                        margin-top:5px
+                    ">
+
+                        Image preview saved
+
+                    </p>
+
                 </div>
+
             </div>
+
         `;
 
     }).join('');
+
 }
+
+
+/* =====================================================
+   CLEAR HISTORY
+===================================================== */
 
 function clearHistory() {
 
@@ -1119,18 +2152,67 @@ function clearHistory() {
 
 }
 
+
+/* =====================================================
+   RESET SCANNER
+===================================================== */
+
 function resetScanner() {
 
     imageInput.value = '';
 
     document.getElementById('previewContainer').innerHTML = '';
 
-    document.getElementById('scanResult').innerHTML = '';
+    document.getElementById('capturedPhoto').innerHTML = '';
+
+    stopCamera();
 
 }
 
-/* Initialize history */
+
+/* =====================================================
+   BASIC HTML ESCAPING
+===================================================== */
+
+function escapeHTML(value) {
+
+    return String(value).replace(/[&<>"']/g, function(character) {
+
+        const entities = {
+
+            '&': '&amp;',
+
+            '<': '&lt;',
+
+            '>': '&gt;',
+
+            '"': '&quot;',
+
+            "'": '&#39;'
+
+        };
+
+        return entities[character];
+
+    });
+
+}
+
+
+/* =====================================================
+   INITIALIZE APPLICATION
+===================================================== */
+
 renderHistory();
+
+
+/* Stop camera when leaving the page */
+
+window.addEventListener('beforeunload', function() {
+
+    stopCamera();
+
+});
 
 </script>
 
