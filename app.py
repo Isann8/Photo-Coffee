@@ -1,1349 +1,352 @@
-# Coffee Identification System
-
-# Import libraries
-import streamlit as st
-import pandas as pd
-import numpy as np
-import cv2
-import json
-import time
-import io
-import hashlib
-
-from pathlib import Path
-from PIL import Image
-from collections import Counter
-from datetime import datetime
+from flask import Flask, render_template, request, jsonify
 from ultralytics import YOLO
+from pathlib import Path
+from collections import Counter
+from werkzeug.utils import secure_filename
+import cv2
+import numpy as np
+import base64
+import logging
 
+# Menentukan lokasi folder utama proyek
+BASE_DIR = Path(__file__).resolve().parent
 
-# Application configuration
-st.set_page_config(
-    page_title="PHOTO COFFEE",
-    page_icon="☕",
-    layout="wide",
-    initial_sidebar_state="expanded"
+# Membuat aplikasi Flask
+# Flask diarahkan membaca index.html langsung dari folder utama
+app = Flask(
+    __name__,
+    template_folder=str(BASE_DIR)
 )
 
+# Mengatur batas ukuran file gambar maksimal 10 MB
+app.config["MAX_CONTENT_LENGTH"] = 10 * 1024 * 1024
 
-# Project and model paths
-PROJECT_DIR = Path(
-    r"D:\Isan-1\.Photo Coffee\Dataset\Photo Coffeeyolov8"
+# Menentukan lokasi model YOLOv8 best.pt
+MODEL_PATH = Path(
+    r"D:\Isan-1\.Photo Coffee\Dataset\Photo Coffeeyolov8\runs\PHOTO_COFFEE_YOLOv8_SEG\weights\best.pt"
 )
 
-MODEL_PATH = (
-    PROJECT_DIR
-    / "runs"
-    / "PHOTO_COFFEE_YOLOv8_SEG"
-    / "weights"
-    / "best.pt"
-)
+# Menentukan lokasi file HTML
+HTML_PATH = BASE_DIR / "index.html"
 
+# Membuat folder penyimpanan sementara
+UPLOAD_DIR = BASE_DIR / "uploads"
+UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
-# Detection history directory
-HISTORY_DIR = PROJECT_DIR / "history"
-HISTORY_DIR.mkdir(parents=True, exist_ok=True)
+# Mengatur parameter prediksi YOLOv8
+CONFIDENCE = 0.40
+IMAGE_SIZE = 640
 
-
-# Coffee classification labels
-CLASS_NAMES = [
-    "Arabika",
-    "Ekselsa",
-    "Liberika",
-    "Robusta"
-]
-
-
-# Application color palette
-COLORS = {
-    "background": "#F5F1E8",
-    "primary": "#79513A",
-    "dark": "#34241B",
-    "secondary": "#897968",
-    "accent": "#C28A57",
-    "success": "#667D60",
-    "light": "#FFFCF6"
+# Menentukan format gambar yang diperbolehkan
+ALLOWED_EXTENSIONS = {
+    "jpg",
+    "jpeg",
+    "png",
+    "webp"
 }
 
-
-# Custom styling
-st.markdown("""
-<style>
-
-.stApp {
-    background-color: #F5F1E8;
-}
-
-[data-testid="stSidebar"] {
-    background-color: #261A14;
-}
-
-[data-testid="stSidebar"] * {
-    color: #F5F1E8;
-}
-
-[data-testid="stMetric"] {
-    background-color: #FFFCF6;
-    border: 1px solid #E5D9C9;
-    padding: 15px;
-    border-radius: 14px;
-}
-
-h1, h2, h3 {
-    color: #34241B;
-}
-
-div.stButton > button {
-    border-radius: 10px;
-}
-
-</style>
-""", unsafe_allow_html=True)
+# Mengatur logging aplikasi
+logging.basicConfig(level=logging.INFO)
 
 
-# Initialize session state
-# Session state stores temporary application data
-if "analysis" not in st.session_state:
-    st.session_state.analysis = None
-
-if "analysis_image_id" not in st.session_state:
-    st.session_state.analysis_image_id = None
-
-if "history_saved_id" not in st.session_state:
-    st.session_state.history_saved_id = None
-
-
-# Load the YOLO model
-# Cache the model to prevent repeated loading
-@st.cache_resource(show_spinner="Loading PHOTO COFFEE AI Model...")
-def load_model():
-
-    if not MODEL_PATH.exists():
-        raise FileNotFoundError(
-            f"Model file not found:\n{MODEL_PATH}"
-        )
-
-    model = YOLO(str(MODEL_PATH))
-
-    return model
-
-
-# Check model availability
-def check_model_status():
-
-    return MODEL_PATH.exists()
-
-
-# Create a unique identifier for an image
-# Used to prevent showing results from a different image
-def get_image_identifier(image):
-
-    image_array = np.array(
-        image.convert("RGB")
+# Memeriksa keberadaan file index.html
+if not HTML_PATH.exists():
+    raise FileNotFoundError(
+        f"File index.html tidak ditemukan: {HTML_PATH}"
     )
 
-    image_bytes = image_array.tobytes()
 
-    return hashlib.md5(
-        image_bytes
-    ).hexdigest()
-
-
-# Convert PIL image into downloadable PNG bytes
-def convert_image_to_bytes(image):
-
-    buffer = io.BytesIO()
-
-    image.save(
-        buffer,
-        format="PNG"
+# Memeriksa keberadaan model best.pt
+if not MODEL_PATH.exists():
+    raise FileNotFoundError(
+        f"File best.pt tidak ditemukan: {MODEL_PATH}"
     )
 
-    return buffer.getvalue()
+
+# Memuat model YOLOv8 Segmentation
+print("\nMemuat model PHOTO COFFEE...")
+
+model = YOLO(str(MODEL_PATH))
 
 
-# Extract detections from YOLO prediction results
-def extract_detections(result, model_names):
-
-    detections = []
-
-    if result.boxes is None:
-        return detections
-
-    for box in result.boxes:
-
-        class_id = int(box.cls.item())
-
-        confidence = float(box.conf.item())
-
-        # Retrieve the class name from the trained model
-        if isinstance(model_names, dict):
-
-            class_name = model_names.get(
-                class_id,
-                f"Class {class_id}"
-            )
-
-        else:
-
-            if class_id < len(model_names):
-                class_name = model_names[class_id]
-            else:
-                class_name = f"Class {class_id}"
-
-        detections.append({
-            "class_id": class_id,
-            "class_name": str(class_name),
-            "confidence": confidence
-        })
-
-    return detections
+# Mengambil nama kelas langsung dari model
+MODEL_NAMES = model.names
 
 
-# Calculate detection statistics
-def calculate_summary(detections):
+# Menyusun nama kelas berdasarkan ID model
+if isinstance(MODEL_NAMES, dict):
 
-    class_counts = Counter()
+    CLASS_NAMES = {
+        int(class_id): class_name
+        for class_id, class_name in MODEL_NAMES.items()
+    }
 
-    confidence_values = []
+else:
 
-    for detection in detections:
-
-        class_counts[
-            detection["class_name"]
-        ] += 1
-
-        confidence_values.append(
-            detection["confidence"]
-        )
-
-    total_objects = len(detections)
-
-    detected_classes = len(class_counts)
-
-    average_confidence = (
-        float(np.mean(confidence_values) * 100)
-        if confidence_values
-        else 0.0
-    )
-
-    return {
-        "class_counts": class_counts,
-        "total_objects": total_objects,
-        "detected_classes": detected_classes,
-        "average_confidence": average_confidence
+    CLASS_NAMES = {
+        class_id: class_name
+        for class_id, class_name in enumerate(MODEL_NAMES)
     }
 
 
-# Save detection results into history
-def save_detection_history(
-    annotated_image,
-    detections,
-    summary,
-    inference_time,
-    confidence_threshold,
-    image_size
-):
+# Menampilkan informasi model
+print("\nModel berhasil dimuat!")
+print("Nama kelas:", CLASS_NAMES)
+print("Lokasi model:", MODEL_PATH)
+print("Lokasi HTML:", HTML_PATH)
+print("PHOTO COFFEE siap digunakan.\n")
 
-    current_time = datetime.now()
 
-    # Generate a unique timestamp for each detection
-    unique_id = current_time.strftime(
-        "%Y%m%d_%H%M%S_%f"
+# Memeriksa format file gambar
+def allowed_file(filename):
+
+    return (
+        "." in filename
+        and filename.rsplit(".", 1)[1].lower()
+        in ALLOWED_EXTENSIONS
     )
 
-    image_filename = (
-        f"PHOTO_COFFEE_{unique_id}.png"
-    )
 
-    json_filename = (
-        f"PHOTO_COFFEE_{unique_id}.json"
-    )
+# Menampilkan halaman utama PHOTO COFFEE
+@app.route("/", methods=["GET"])
+def home():
 
-    image_path = HISTORY_DIR / image_filename
+    return render_template("index.html")
 
-    json_path = HISTORY_DIR / json_filename
 
-    # Save the segmentation result
-    annotated_pil = Image.fromarray(
-        annotated_image
-    )
+# Memeriksa status backend dan model
+@app.route("/health", methods=["GET"])
+def health():
 
-    annotated_pil.save(
-        image_path,
-        format="PNG"
-    )
-
-    # Prepare detection metadata
-    history_record = {
-
+    return jsonify({
+        "success": True,
         "application": "PHOTO COFFEE",
+        "backend": "Flask",
+        "model": "YOLOv8 Segmentation",
+        "classes": CLASS_NAMES
+    })
 
-        "timestamp": current_time.strftime(
-            "%Y-%m-%d %H:%M:%S"
-        ),
 
-        "total_objects": summary["total_objects"],
+# Endpoint untuk melakukan prediksi gambar
+@app.route("/predict", methods=["POST"])
+def predict():
 
-        "detected_classes": summary["detected_classes"],
+    # Memeriksa apakah gambar sudah dikirim
+    if "image" not in request.files:
 
-        "average_confidence": summary["average_confidence"],
+        return jsonify({
+            "success": False,
+            "message": "Silakan unggah gambar terlebih dahulu."
+        }), 400
 
-        "inference_time": inference_time,
+    file = request.files["image"]
 
-        "confidence_threshold": confidence_threshold,
+    # Memeriksa apakah file sudah dipilih
+    if file.filename == "":
 
-        "image_size": image_size,
+        return jsonify({
+            "success": False,
+            "message": "File gambar belum dipilih."
+        }), 400
 
-        "class_counts": {
-            name: summary["class_counts"].get(name, 0)
-            for name in CLASS_NAMES
-        },
+    # Memeriksa format gambar
+    if not allowed_file(file.filename):
 
-        "detections": detections,
+        return jsonify({
+            "success": False,
+            "message": "Gunakan format JPG, JPEG, PNG, atau WEBP."
+        }), 400
 
-        "image_file": image_filename
-    }
+    try:
 
-    # Save metadata as JSON
-    with open(
-        json_path,
-        "w",
-        encoding="utf-8"
-    ) as file:
+        # Mengamankan nama file
+        filename = secure_filename(file.filename)
 
-        json.dump(
-            history_record,
-            file,
-            indent=4,
-            ensure_ascii=False
+        # Membaca data gambar
+        image_bytes = file.read()
+
+        # Memastikan file tidak kosong
+        if not image_bytes:
+
+            return jsonify({
+                "success": False,
+                "message": "File gambar kosong."
+            }), 400
+
+        # Mengubah data gambar menjadi array
+        image_array = np.frombuffer(
+            image_bytes,
+            dtype=np.uint8
         )
 
-    return unique_id
-
-
-# Load detection history from JSON files
-def read_detection_history():
-
-    records = []
-
-    json_files = list(
-        HISTORY_DIR.glob("*.json")
-    )
-
-    # Sort history by newest modification time
-    json_files.sort(
-        key=lambda file: file.stat().st_mtime,
-        reverse=True
-    )
-
-    for file in json_files:
-
-        try:
-
-            with open(
-                file,
-                "r",
-                encoding="utf-8"
-            ) as json_file:
-
-                record = json.load(json_file)
-
-                records.append(record)
-
-        except Exception as error:
-
-            print(
-                f"Could not read history: {error}"
-            )
-
-    return records
-
-
-# Sidebar navigation
-with st.sidebar:
-
-    st.title("☕ PHOTO COFFEE")
-
-    st.caption(
-        "Coffee Identification System"
-    )
-
-    st.divider()
-
-    selected_page = st.radio(
-        "NAVIGATION",
-        [
-            "Dashboard",
-            "Coffee Scanner",
-            "Analytics",
-            "Detection History",
-            "About System"
-        ]
-    )
-
-    st.divider()
-
-    # Show model status
-    if check_model_status():
-
-        st.success("AI Model Online")
-
-    else:
-
-        st.error("AI Model Not Found")
-
-    st.caption(
-        "YOLOv8 Instance Segmentation"
-    )
-
-
-# ============================================================
-# DASHBOARD PAGE
-# ============================================================
-if selected_page == "Dashboard":
-
-    st.title("☕ PHOTO COFFEE")
-
-    st.subheader(
-        "Coffee Identification System"
-    )
-
-    st.info(
-        "An intelligent coffee bean identification "
-        "system powered by computer vision and deep learning."
-    )
-
-    # Read history data for dashboard metrics
-    records = read_detection_history()
-
-    total_sessions = len(records)
-
-    total_objects = sum(
-        record.get("total_objects", 0)
-        for record in records
-    )
-
-    # Dashboard metrics
-    st.markdown("### System Overview")
-
-    col1, col2, col3, col4 = st.columns(4)
-
-    col1.metric(
-        "Coffee Classes",
-        "4",
-        "Classification categories"
-    )
-
-    col2.metric(
-        "Detection Sessions",
-        total_sessions
-    )
-
-    col3.metric(
-        "Total Objects",
-        total_objects
-    )
-
-    col4.metric(
-        "Model Architecture",
-        "YOLOv8"
-    )
-
-    st.divider()
-
-    # Display supported coffee varieties
-    st.markdown("### Coffee Varieties")
-
-    coffee_details = {
-        "Arabika": "Arabica Coffee",
-        "Ekselsa": "Excelsa Coffee",
-        "Liberika": "Liberica Coffee",
-        "Robusta": "Robusta Coffee"
-    }
-
-    class_columns = st.columns(4)
-
-    for index, name in enumerate(CLASS_NAMES):
-
-        with class_columns[index]:
-
-            with st.container(border=True):
-
-                st.markdown("## ☕")
-
-                st.markdown(
-                    f"### {name}"
-                )
-
-                st.caption(
-                    coffee_details[name]
-                )
-
-    st.divider()
-
-    # Display system workflow
-    st.markdown("### System Workflow")
-
-    workflow = [
-        ("01", "Image Input", "Upload or capture an image"),
-        ("02", "Detection", "AI object detection"),
-        ("03", "Segmentation", "Object mask generation"),
-        ("04", "Classification", "Coffee variety prediction")
-    ]
-
-    workflow_columns = st.columns(4)
-
-    for index, item in enumerate(workflow):
-
-        with workflow_columns[index]:
-
-            with st.container(border=True):
-
-                st.caption(item[0])
-
-                st.markdown(
-                    f"### {item[1]}"
-                )
-
-                st.write(item[2])
-
-    st.divider()
-
-    st.markdown("### Getting Started")
-
-    st.write(
-        "Navigate to Coffee Scanner from the sidebar "
-        "to upload an image or capture a photo "
-        "of coffee beans."
-    )
-
-
-# ============================================================
-# COFFEE SCANNER PAGE
-# ============================================================
-elif selected_page == "Coffee Scanner":
-
-    st.title("Coffee Scanner")
-
-    st.caption(
-        "Detect, segment, and classify coffee beans."
-    )
-
-    # Select image input method
-    input_method = st.radio(
-        "Image Input",
-        [
-            "Upload Image",
-            "Camera"
-        ],
-        horizontal=True
-    )
-
-    selected_image = None
-
-    # Upload image
-    if input_method == "Upload Image":
-
-        uploaded_file = st.file_uploader(
-            "Upload coffee bean image",
-            type=[
-                "jpg",
-                "jpeg",
-                "png",
-                "webp"
-            ],
-            key="coffee_uploader"
+        # Membaca gambar menggunakan OpenCV
+        image = cv2.imdecode(
+            image_array,
+            cv2.IMREAD_COLOR
         )
 
-        if uploaded_file is not None:
+        # Memeriksa apakah gambar berhasil dibaca
+        if image is None:
 
-            try:
+            return jsonify({
+                "success": False,
+                "message": "Gambar tidak dapat dibaca."
+            }), 400
 
-                selected_image = Image.open(
-                    uploaded_file
-                ).convert("RGB")
+        # Melakukan prediksi menggunakan YOLOv8 Segmentation
+        results = model.predict(
+            source=image,
+            imgsz=IMAGE_SIZE,
+            conf=CONFIDENCE,
+            verbose=False
+        )
 
-            except Exception:
+        # Mengambil hasil prediksi pertama
+        result = results[0]
 
-                st.error(
-                    "The uploaded image could not be opened."
+        # Menyiapkan penghitung jumlah objek
+        counts = Counter()
+
+        # Menyiapkan daftar hasil deteksi
+        detections = []
+
+        # Memeriksa hasil deteksi objek
+        if result.boxes is not None:
+
+            for box in result.boxes:
+
+                # Mengambil ID kelas
+                class_id = int(box.cls.item())
+
+                # Mengambil nama kelas
+                class_name = CLASS_NAMES.get(
+                    class_id,
+                    f"Class {class_id}"
                 )
 
-    # Capture image using the camera
-    elif input_method == "Camera":
-
-        camera_file = st.camera_input(
-            "Take a picture of coffee beans",
-            key="coffee_camera"
-        )
-
-        if camera_file is not None:
-
-            try:
-
-                selected_image = Image.open(
-                    camera_file
-                ).convert("RGB")
-
-            except Exception:
-
-                st.error(
-                    "The captured image could not be opened."
-                )
-
-    # Detection configuration
-    st.markdown("### Detection Settings")
-
-    config_col1, config_col2 = st.columns(2)
-
-    with config_col1:
-
-        confidence_threshold = st.slider(
-            "Confidence Threshold",
-            min_value=0.10,
-            max_value=0.90,
-            value=0.25,
-            step=0.05,
-            help="Minimum confidence score required for a detection."
-        )
-
-    with config_col2:
-
-        image_size = st.selectbox(
-            "Image Size",
-            [320, 480, 640, 960],
-            index=2
-        )
-
-    # Preview the selected image
-    if selected_image is not None:
-
-        st.markdown("### Image Preview")
-
-        st.image(
-            selected_image,
-            caption="Input Image",
-            use_container_width=True
-        )
-
-        # Generate an ID to identify the current image
-        current_image_id = get_image_identifier(
-            selected_image
-        )
-
-        # Run YOLO detection
-        if st.button(
-            "🔍 RUN DETECTION",
-            type="primary",
-            use_container_width=True
-        ):
-
-            try:
-
-                with st.spinner(
-                    "PHOTO COFFEE is analyzing your image..."
-                ):
-
-                    # Load trained model
-                    model = load_model()
-
-                    image_array = np.array(
-                        selected_image.convert("RGB")
-                    )
-
-                    # Start inference timer
-                    start_time = time.perf_counter()
-
-                    # Run model prediction
-                    results = model.predict(
-                        source=image_array,
-                        imgsz=image_size,
-                        conf=confidence_threshold,
-                        verbose=False
-                    )
-
-                    # Calculate inference time
-                    inference_time = (
-                        time.perf_counter()
-                        - start_time
-                    )
-
-                    result = results[0]
-
-                    # Extract detection results
-                    detections = extract_detections(
-                        result,
-                        model.names
-                    )
-
-                    # Calculate statistics
-                    summary = calculate_summary(
-                        detections
-                    )
-
-                    # Generate segmentation visualization
-                    plotted_image = result.plot()
-
-                    # Convert BGR to RGB
-                    annotated_image = cv2.cvtColor(
-                        plotted_image,
-                        cv2.COLOR_BGR2RGB
-                    )
-
-                    # Store analysis in session state
-                    st.session_state.analysis = {
-                        "detections": detections,
-                        "summary": summary,
-                        "inference_time": inference_time,
-                        "confidence_threshold": confidence_threshold,
-                        "image_size": image_size,
-                        "annotated_image": annotated_image
-                    }
-
-                    st.session_state.analysis_image_id = (
-                        current_image_id
-                    )
-
-                    # Save detection into history
-                    history_id = save_detection_history(
-                        annotated_image=annotated_image,
-                        detections=detections,
-                        summary=summary,
-                        inference_time=inference_time,
-                        confidence_threshold=confidence_threshold,
-                        image_size=image_size
-                    )
-
-                    st.session_state.history_saved_id = (
-                        history_id
-                    )
-
-                st.success(
-                    "Detection completed successfully!"
-                )
-
-            except Exception as error:
-
-                st.error(
-                    f"Detection error: {error}"
-                )
-
-                st.exception(error)
-
-        # Display result only for the current image
-        if (
-            st.session_state.analysis is not None
-            and st.session_state.analysis_image_id
-            == current_image_id
-        ):
-
-            analysis = st.session_state.analysis
-
-            summary = analysis["summary"]
-
-            detections = analysis["detections"]
-
-            annotated_image = analysis["annotated_image"]
-
-            st.divider()
-
-            st.markdown("## Detection Results")
-
-            # Compare original image and segmentation output
-            original_col, segmentation_col = st.columns(2)
-
-            with original_col:
-
-                st.markdown("### Original Image")
-
-                st.image(
-                    selected_image,
-                    use_container_width=True
-                )
-
-            with segmentation_col:
-
-                st.markdown("### Segmentation Result")
-
-                st.image(
-                    annotated_image,
-                    use_container_width=True
-                )
-
-            st.divider()
-
-            # Detection summary metrics
-            st.markdown("### Detection Summary")
-
-            metric1, metric2, metric3, metric4 = st.columns(4)
-
-            metric1.metric(
-                "Total Objects",
-                summary["total_objects"]
-            )
-
-            metric2.metric(
-                "Classes Found",
-                summary["detected_classes"]
-            )
-
-            metric3.metric(
-                "Average Confidence",
-                f"{summary['average_confidence']:.2f}%"
-            )
-
-            metric4.metric(
-                "Inference Time",
-                f"{analysis['inference_time']:.3f} s"
-            )
-
-            st.divider()
-
-            # Display class distribution
-            st.markdown("### Coffee Variety Distribution")
-
-            distribution_data = pd.DataFrame({
-                "Coffee Variety": CLASS_NAMES,
-                "Detected Objects": [
-                    summary["class_counts"].get(
-                        name,
-                        0
-                    )
-                    for name in CLASS_NAMES
-                ]
-            })
-
-            st.bar_chart(
-                distribution_data.set_index(
-                    "Coffee Variety"
-                )
-            )
-
-            # Display object-level information
-            st.markdown("### Detection Details")
-
-            if detections:
-
-                detection_table = pd.DataFrame(
-                    [
-                        {
-                            "Object": f"Object {index + 1}",
-                            "Coffee Variety": item["class_name"],
-                            "Confidence": (
-                                f"{item['confidence'] * 100:.2f}%"
-                            )
-                        }
-                        for index, item in enumerate(
-                            detections
-                        )
-                    ]
-                )
-
-                st.dataframe(
-                    detection_table,
-                    use_container_width=True,
-                    hide_index=True
-                )
-
-            else:
-
-                st.warning(
-                    "No coffee beans were detected. "
-                    "Try lowering the confidence threshold."
-                )
-
-            # Display model processing parameters
-            st.markdown("### Processing Information")
-
-            info_col1, info_col2, info_col3 = st.columns(3)
-
-            info_col1.metric(
-                "Confidence Threshold",
-                f"{analysis['confidence_threshold']:.2f}"
-            )
-
-            info_col2.metric(
-                "Image Size",
-                analysis["image_size"]
-            )
-
-            info_col3.metric(
-                "Inference Time",
-                f"{analysis['inference_time']:.3f} seconds"
-            )
-
-            # Download segmentation result
-            st.markdown("### Export Result")
-
-            result_pil = Image.fromarray(
-                annotated_image
-            )
-
-            st.download_button(
-                label="Download Segmentation Image",
-                data=convert_image_to_bytes(
-                    result_pil
-                ),
-                file_name="PHOTO_COFFEE_Result.png",
-                mime="image/png",
-                use_container_width=True
-            )
-
-    else:
-
-        st.info(
-            "Upload an image or capture a photo "
-            "to start coffee detection."
-        )
-
-
-# ============================================================
-# ANALYTICS PAGE
-# ============================================================
-elif selected_page == "Analytics":
-
-    st.title("Detection Analytics")
-
-    st.caption(
-        "Statistical overview of coffee bean detection results."
-    )
-
-    analysis = st.session_state.analysis
-
-    # Check whether an analysis is available
-    if analysis is None:
-
-        st.info(
-            "No analysis available. Run a detection "
-            "from Coffee Scanner first."
-        )
-
-    else:
-
-        summary = analysis["summary"]
-
-        detections = analysis["detections"]
-
-        # Display overall metrics
-        col1, col2, col3, col4 = st.columns(4)
-
-        col1.metric(
-            "Total Objects",
-            summary["total_objects"]
-        )
-
-        col2.metric(
-            "Classes Found",
-            summary["detected_classes"]
-        )
-
-        col3.metric(
-            "Average Confidence",
-            f"{summary['average_confidence']:.2f}%"
-        )
-
-        col4.metric(
-            "Inference Time",
-            f"{analysis['inference_time']:.3f} s"
-        )
-
-        st.divider()
-
-        # Coffee class distribution
-        st.markdown("### Coffee Variety Distribution")
-
-        analytics_data = pd.DataFrame({
-            "Coffee Variety": CLASS_NAMES,
-            "Detected Objects": [
-                summary["class_counts"].get(
-                    name,
-                    0
-                )
-                for name in CLASS_NAMES
-            ]
-        })
-
-        st.bar_chart(
-            analytics_data.set_index(
-                "Coffee Variety"
-            )
-        )
-
-        # Calculate percentage for each class
-        st.markdown("### Percentage Distribution")
-
-        if summary["total_objects"] > 0:
-
-            percentage_data = pd.DataFrame({
-                "Coffee Variety": CLASS_NAMES,
-                "Count": [
-                    summary["class_counts"].get(
-                        name,
-                        0
-                    )
-                    for name in CLASS_NAMES
-                ],
-                "Percentage": [
-                    round(
-                        summary["class_counts"].get(
-                            name,
-                            0
-                        )
-                        / summary["total_objects"]
-                        * 100,
+                # Mengambil nilai confidence
+                confidence = float(box.conf.item())
+
+                # Menghitung jumlah objek setiap kelas
+                counts[class_name] += 1
+
+                # Menyimpan informasi hasil deteksi
+                detection = {
+                    "class": class_name,
+                    "confidence": round(
+                        confidence * 100,
                         2
                     )
-                    for name in CLASS_NAMES
-                ]
-            })
+                }
 
-            st.dataframe(
-                percentage_data,
-                use_container_width=True,
-                hide_index=True
-            )
+                detections.append(detection)
 
-        # Confidence analysis for each detected object
-        st.markdown("### Object Confidence Analysis")
+        # Menghitung jumlah objek berdasarkan kelas
+        class_counts = {
+            class_name: counts.get(class_name, 0)
+            for class_name in CLASS_NAMES.values()
+        }
 
-        if detections:
+        # Membuat visualisasi bounding box dan segmentation mask
+        annotated_image = result.plot()
 
-            confidence_data = pd.DataFrame(
-                [
-                    {
-                        "Object": f"Object {index + 1}",
-                        "Coffee Variety": item["class_name"],
-                        "Confidence (%)": round(
-                            item["confidence"] * 100,
-                            2
-                        )
-                    }
-                    for index, item in enumerate(
-                        detections
-                    )
-                ]
-            )
-
-            st.dataframe(
-                confidence_data,
-                use_container_width=True,
-                hide_index=True
-            )
-
-            # Visualize confidence values
-            st.markdown("### Confidence Distribution")
-
-            st.bar_chart(
-                confidence_data.set_index(
-                    "Object"
-                )["Confidence (%)"]
-            )
-
-        else:
-
-            st.warning(
-                "No detected objects are available for analysis."
-            )
-
-
-# ============================================================
-# DETECTION HISTORY PAGE
-# ============================================================
-elif selected_page == "Detection History":
-
-    st.title("Detection History")
-
-    st.caption(
-        "Browse previously saved detection sessions."
-    )
-
-    history_records = read_detection_history()
-
-    # Display number of saved sessions
-    st.metric(
-        "Total Saved Sessions",
-        len(history_records)
-    )
-
-    if not history_records:
-
-        st.info(
-            "No history available. Perform your first "
-            "detection from the Coffee Scanner page."
+        # Mengubah hasil visualisasi menjadi format JPG
+        success, encoded_image = cv2.imencode(
+            ".jpg",
+            annotated_image
         )
 
-    else:
+        # Memeriksa keberhasilan encoding gambar
+        if not success:
 
-        st.divider()
-
-        # Display saved records
-        for index, record in enumerate(history_records):
-
-            timestamp = record.get(
-                "timestamp",
-                "Unknown timestamp"
+            raise RuntimeError(
+                "Gagal membuat gambar hasil prediksi."
             )
 
-            with st.expander(
-                f"☕ Session {index + 1} | {timestamp}"
-            ):
+        # Mengubah gambar menjadi Base64
+        image_base64 = base64.b64encode(
+            encoded_image.tobytes()
+        ).decode("utf-8")
 
-                col1, col2 = st.columns(2)
+        # Menyiapkan hasil prediksi
+        response = {
+            "success": True,
+            "message": "Analisis gambar berhasil.",
+            "filename": filename,
+            "total_objects": len(detections),
+            "class_counts": class_counts,
+            "detections": detections,
+            "annotated_image": (
+                "data:image/jpeg;base64,"
+                + image_base64
+            )
+        }
 
-                with col1:
+        # Mengirim hasil prediksi ke frontend
+        return jsonify(response)
 
-                    st.markdown("### Session Summary")
+    except Exception as error:
 
-                    st.write(
-                        "Total Objects:",
-                        record.get(
-                            "total_objects",
-                            0
-                        )
-                    )
-
-                    st.write(
-                        "Detected Classes:",
-                        record.get(
-                            "detected_classes",
-                            0
-                        )
-                    )
-
-                    st.write(
-                        "Average Confidence:",
-                        f"{record.get('average_confidence', 0):.2f}%"
-                    )
-
-                    st.write(
-                        "Inference Time:",
-                        f"{record.get('inference_time', 0):.3f} seconds"
-                    )
-
-                    st.markdown("### Class Counts")
-
-                    class_counts = record.get(
-                        "class_counts",
-                        {}
-                    )
-
-                    for name in CLASS_NAMES:
-
-                        st.write(
-                            f"**{name}:** "
-                            f"{class_counts.get(name, 0)}"
-                        )
-
-                with col2:
-
-                    # Load saved segmentation image
-                    image_filename = record.get(
-                        "image_file",
-                        ""
-                    )
-
-                    image_path = (
-                        HISTORY_DIR
-                        / image_filename
-                    )
-
-                    if image_path.exists():
-
-                        history_image = Image.open(
-                            image_path
-                        ).convert("RGB")
-
-                        st.image(
-                            history_image,
-                            caption="Saved Segmentation Result",
-                            use_container_width=True
-                        )
-
-                        # Download historical image
-                        st.download_button(
-                            label="Download Image",
-                            data=image_path.read_bytes(),
-                            file_name=image_filename,
-                            mime="image/png",
-                            key=f"history_download_{index}"
-                        )
-
-                # Show individual object detections
-                saved_detections = record.get(
-                    "detections",
-                    []
-                )
-
-                if saved_detections:
-
-                    st.markdown("### Detection Details")
-
-                    history_table = pd.DataFrame(
-                        [
-                            {
-                                "Object": f"Object {i + 1}",
-                                "Coffee Variety": item.get(
-                                    "class_name",
-                                    "Unknown"
-                                ),
-                                "Confidence": (
-                                    f"{item.get('confidence', 0) * 100:.2f}%"
-                                )
-                            }
-                            for i, item in enumerate(
-                                saved_detections
-                            )
-                        ]
-                    )
-
-                    st.dataframe(
-                        history_table,
-                        use_container_width=True,
-                        hide_index=True
-                    )
-
-
-# ============================================================
-# ABOUT SYSTEM PAGE
-# ============================================================
-elif selected_page == "About System":
-
-    st.title("About PHOTO COFFEE")
-
-    st.caption(
-        "Coffee Identification System"
-    )
-
-    st.info(
-        "PHOTO COFFEE is an AI-powered application "
-        "for coffee bean detection, segmentation, "
-        "and variety classification."
-    )
-
-    st.divider()
-
-    # System description
-    st.markdown("### System Overview")
-
-    st.write(
-        """
-        PHOTO COFFEE is a computer vision application
-        developed to identify coffee bean varieties
-        through digital image processing and deep learning.
-
-        The system uses a trained YOLOv8 Instance
-        Segmentation model to locate coffee beans,
-        generate segmentation masks, and classify
-        detected objects into their corresponding varieties.
-        """
-    )
-
-    # Supported coffee varieties
-    st.markdown("### Classification Categories")
-
-    class_columns = st.columns(4)
-
-    coffee_details = {
-        "Arabika": "Arabica Coffee",
-        "Ekselsa": "Excelsa Coffee",
-        "Liberika": "Liberica Coffee",
-        "Robusta": "Robusta Coffee"
-    }
-
-    for index, name in enumerate(CLASS_NAMES):
-
-        with class_columns[index]:
-
-            with st.container(border=True):
-
-                st.markdown("## ☕")
-
-                st.markdown(
-                    f"### {name}"
-                )
-
-                st.caption(
-                    coffee_details[name]
-                )
-
-    st.divider()
-
-    # Model information
-    st.markdown("### Model Information")
-
-    col1, col2, col3 = st.columns(3)
-
-    col1.metric(
-        "Architecture",
-        "YOLOv8"
-    )
-
-    col2.metric(
-        "Task",
-        "Instance Segmentation"
-    )
-
-    col3.metric(
-        "Classes",
-        "4 Varieties"
-    )
-
-    # System workflow
-    st.markdown("### System Workflow")
-
-    system_steps = [
-        "Image Acquisition",
-        "Image Input Processing",
-        "Coffee Bean Detection",
-        "Instance Segmentation",
-        "Variety Classification",
-        "Result Visualization"
-    ]
-
-    for index, step in enumerate(system_steps):
-
-        st.write(
-            f"**{index + 1}.** {step}"
+        # Menampilkan detail kesalahan pada terminal
+        app.logger.exception(
+            "Terjadi kesalahan saat melakukan prediksi."
         )
 
-    st.divider()
+        return jsonify({
+            "success": False,
+            "message": str(error)
+        }), 500
 
-    # Technologies used
-    st.markdown("### Technologies")
 
-    st.write(
-        """
-        - Python
-        - Streamlit
-        - Ultralytics YOLOv8
-        - OpenCV
-        - NumPy
-        - Pandas
-        - Pillow
-        """
+# Menangani ukuran file yang melebihi batas
+@app.errorhandler(413)
+def file_too_large(error):
+
+    return jsonify({
+        "success": False,
+        "message": "Ukuran gambar maksimal 10 MB."
+    }), 413
+
+
+# Menangani halaman yang tidak ditemukan
+@app.errorhandler(404)
+def page_not_found(error):
+
+    return jsonify({
+        "success": False,
+        "message": "Halaman tidak ditemukan."
+    }), 404
+
+
+# Menangani kesalahan server
+@app.errorhandler(500)
+def internal_server_error(error):
+
+    return jsonify({
+        "success": False,
+        "message": "Terjadi kesalahan pada server."
+    }), 500
+
+
+# Menjalankan aplikasi Flask
+if __name__ == "__main__":
+
+    print("================================")
+    print("       PHOTO COFFEE SYSTEM")
+    print("================================")
+    print("Backend       : Flask")
+    print("Model         : YOLOv8 Segmentation")
+    print("Confidence    :", CONFIDENCE)
+    print("Image Size    :", IMAGE_SIZE)
+    print("Model Path    :", MODEL_PATH)
+    print("HTML Path     :", HTML_PATH)
+    print("================================")
+    print("Website       : http://127.0.0.1:5000")
+    print("================================\n")
+
+    app.run(
+        host="127.0.0.1",
+        port=5000,
+        debug=False,
+        use_reloader=False
     )
-
-    # Application purpose
-    st.markdown("### Application Purpose")
-
-    st.write(
-        """
-        PHOTO COFFEE provides an interactive interface
-        for testing, analyzing, and visualizing coffee
-        bean classification results produced by a
-        trained computer vision model.
-        """
-    )
-
-
-# ============================================================
-# APPLICATION FOOTER
-# ============================================================
-
-st.divider()
-
-st.caption(
-    "PHOTO COFFEE | Coffee Identification System | "
-    "YOLOv8 Instance Segmentation"
-)
