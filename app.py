@@ -9,12 +9,19 @@ import json
 import time
 import io
 import hashlib
+import av
+import threading
 
 from pathlib import Path
 from PIL import Image
 from collections import Counter
 from datetime import datetime
 from ultralytics import YOLO
+from streamlit_webrtc import (
+    webrtc_streamer,
+    VideoProcessorBase,
+    WebRtcMode
+)
 
 
 # Application configuration
@@ -360,6 +367,106 @@ def read_detection_history():
     return records
 
 
+# ============================================================
+# LIVE WEBCAM VIDEO PROCESSOR
+# ============================================================
+
+class CoffeeVideoProcessor(VideoProcessorBase):
+
+    def __init__(self):
+
+        self.model = load_model()
+
+        self.confidence_threshold = 0.25
+
+        self.image_size = 640
+
+        self.lock = threading.Lock()
+
+        self.last_detections = []
+
+        self.last_summary = calculate_summary([])
+
+        self.last_inference_time = 0.0
+
+        self.last_error = None
+
+    def recv(self, frame):
+
+        try:
+
+            # Convert webcam frame to OpenCV format
+            image = frame.to_ndarray(
+                format="bgr24"
+            )
+
+            # Get current detection settings
+            with self.lock:
+
+                confidence = self.confidence_threshold
+
+                image_size = self.image_size
+
+            # Start inference timer
+            start_time = time.perf_counter()
+
+            # Run YOLOv8 prediction on webcam frame
+            results = self.model.predict(
+                source=image,
+                imgsz=image_size,
+                conf=confidence,
+                verbose=False
+            )
+
+            # Calculate inference time
+            inference_time = (
+                time.perf_counter()
+                - start_time
+            )
+
+            result = results[0]
+
+            # Extract detected coffee beans
+            detections = extract_detections(
+                result,
+                self.model.names
+            )
+
+            # Calculate detection statistics
+            summary = calculate_summary(
+                detections
+            )
+
+            # Generate segmentation visualization
+            annotated_frame = result.plot()
+
+            # Update live detection information
+            with self.lock:
+
+                self.last_detections = detections
+
+                self.last_summary = summary
+
+                self.last_inference_time = inference_time
+
+                self.last_error = None
+
+            # Return annotated webcam frame
+            return av.VideoFrame.from_ndarray(
+                annotated_frame,
+                format="bgr24"
+            )
+
+        except Exception as error:
+
+            with self.lock:
+
+                self.last_error = str(error)
+
+            # Return original frame if inference fails
+            return frame
+
+
 # Sidebar navigation
 with st.sidebar:
 
@@ -535,7 +642,8 @@ elif selected_page == "Coffee Scanner":
         "Image Input",
         [
             "Upload Image",
-            "Camera"
+            "Camera",
+            "Live Webcam"
         ],
         horizontal=True
     )
@@ -615,6 +723,146 @@ elif selected_page == "Coffee Scanner":
             [320, 480, 640, 960],
             index=2
         )
+
+    # ========================================================
+    # LIVE WEBCAM DETECTION
+    # ========================================================
+
+    if input_method == "Live Webcam":
+
+        st.markdown("### Live Coffee Detection")
+
+        st.info(
+            "Activate your webcam to detect and classify "
+            "coffee beans in real time using the YOLOv8 model."
+        )
+
+        try:
+
+            # Start webcam stream and YOLO inference
+            webrtc_ctx = webrtc_streamer(
+                key="photo_coffee_live",
+                mode=WebRtcMode.SENDRECV,
+                video_processor_factory=CoffeeVideoProcessor,
+                media_stream_constraints={
+                    "video": True,
+                    "audio": False
+                },
+                async_processing=True
+            )
+
+            # Update live detection settings
+            if webrtc_ctx.video_processor:
+
+                processor = webrtc_ctx.video_processor
+
+                with processor.lock:
+
+                    processor.confidence_threshold = (
+                        confidence_threshold
+                    )
+
+                    processor.image_size = image_size
+
+                st.success(
+                    "YOLOv8 Live Detection is ready."
+                )
+
+                # Display live detection information
+                with processor.lock:
+
+                    live_detections = list(
+                        processor.last_detections
+                    )
+
+                    live_summary = dict(
+                        processor.last_summary
+                    )
+
+                    live_inference_time = (
+                        processor.last_inference_time
+                    )
+
+                    live_error = processor.last_error
+
+                if live_error:
+
+                    st.error(
+                        f"Webcam detection error: {live_error}"
+                    )
+
+                st.divider()
+
+                st.markdown("### Live Detection Summary")
+
+                metric1, metric2, metric3 = st.columns(3)
+
+                metric1.metric(
+                    "Detected Objects",
+                    live_summary["total_objects"]
+                )
+
+                metric2.metric(
+                    "Classes Found",
+                    live_summary["detected_classes"]
+                )
+
+                metric3.metric(
+                    "Inference Time",
+                    f"{live_inference_time:.3f} s"
+                )
+
+                st.markdown(
+                    "### Live Detection Details"
+                )
+
+                if live_detections:
+
+                    live_table = pd.DataFrame(
+                        [
+                            {
+                                "Object": f"Object {index + 1}",
+                                "Coffee Variety": item["class_name"],
+                                "Confidence": (
+                                    f"{item['confidence'] * 100:.2f}%"
+                                )
+                            }
+                            for index, item in enumerate(
+                                live_detections
+                            )
+                        ]
+                    )
+
+                    st.dataframe(
+                        live_table,
+                        use_container_width=True,
+                        hide_index=True
+                    )
+
+                else:
+
+                    st.info(
+                        "No coffee beans detected in the current frame."
+                    )
+
+            else:
+
+                st.warning(
+                    "Start the webcam using the START button "
+                    "above to activate live detection."
+                )
+
+        except Exception as error:
+
+            st.error(
+                f"Live Webcam Error: {error}"
+            )
+
+            st.exception(error)
+
+    # ========================================================
+    # IMAGE DETECTION
+    # ========================================================
 
     # Preview the selected image
     if selected_image is not None:
@@ -890,7 +1138,7 @@ elif selected_page == "Coffee Scanner":
                 use_container_width=True
             )
 
-    else:
+    elif input_method != "Live Webcam":
 
         st.info(
             "Upload an image or capture a photo "
