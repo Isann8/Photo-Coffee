@@ -298,6 +298,12 @@ h1 {
     transform: translateY(-1px);
 }
 
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
 .btn-light {
     background: #EDE4D8;
     color: var(--brown);
@@ -515,6 +521,71 @@ input[type="file"] {
     display: none;
 }
 
+/* Hasil segmentasi */
+
+.result-image {
+    width: 100%;
+    max-width: 650px;
+    max-height: 450px;
+    object-fit: contain;
+    display: block;
+    margin: 15px auto;
+    border-radius: 12px;
+    background: white;
+}
+
+.result-heading {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    margin-bottom: 15px;
+}
+
+.result-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-top: 18px;
+}
+
+.result-stat {
+    background: #FFFCF6;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 15px;
+}
+
+.result-stat .metric-value {
+    font-size: 23px;
+}
+
+.result-table-wrapper {
+    overflow-x: auto;
+    margin-top: 20px;
+}
+
+.message-box {
+    padding: 14px;
+    border-radius: 10px;
+    margin-top: 15px;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.message-loading {
+    background: #E8E0D4;
+    color: var(--brown);
+}
+
+.message-error {
+    background: #F8E2DF;
+    color: #963F35;
+}
+
+.message-success {
+    background: #E5EDDF;
+    color: #496342;
+}
+
 /* Mobile responsiveness */
 
 @media(max-width: 1050px) {
@@ -600,6 +671,10 @@ input[type="file"] {
     .footer {
         flex-direction: column;
     }
+
+    .result-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
 </style>
 </head>
@@ -659,7 +734,9 @@ input[type="file"] {
 <main class="main">
 
 <div class="topbar">
-    <div class="breadcrumb">PHOTO COFFEE / <span id="breadcrumb">DASHBOARD</span></div>
+    <div class="breadcrumb">
+        PHOTO COFFEE / <span id="breadcrumb">DASHBOARD</span>
+    </div>
     <div class="top-tag">COFFEE AI TECHNOLOGY</div>
 </div>
 
@@ -667,17 +744,24 @@ input[type="file"] {
 <section id="dashboard" class="page active">
 
     <h1>Dashboard Overview</h1>
-    <p class="subtitle">Coffee identification and visual analysis system.</p>
+    <p class="subtitle">
+        Coffee identification and visual analysis system.
+    </p>
 
     <div class="hero">
         <div class="hero-tag">COFFEE IDENTIFICATION SYSTEM</div>
+
         <h2>Discover the Identity<br>of Your Coffee.</h2>
+
         <p>
             An image-based coffee classification platform designed to explore
             the visual characteristics of Arabika, Ekselsa, Liberika, and Robusta
             coffee beans through digital image processing and computer vision.
         </p>
-        <button class="btn" onclick="navigateById('scanner')">Open Coffee Scanner →</button>
+
+        <button class="btn" onclick="navigateById('scanner')">
+            Open Coffee Scanner →
+        </button>
     </div>
 
     <div class="grid grid-4" style="margin-bottom:28px">
@@ -691,7 +775,7 @@ input[type="file"] {
         <div class="card">
             <div class="metric-label">Technology</div>
             <div class="metric-value">YOLOv8</div>
-            <div class="metric-foot">Segmentation-based concept</div>
+            <div class="metric-foot">Segmentation-based model</div>
         </div>
 
         <div class="card">
@@ -782,33 +866,67 @@ input[type="file"] {
 <section id="scanner" class="page">
 
     <h1>Coffee Scanner</h1>
-    <p class="subtitle">Upload a coffee bean image to explore the scanner interface.</p>
+
+    <p class="subtitle">
+        Upload a green coffee bean image for identification using
+        the trained YOLOv8 Segmentation model.
+    </p>
 
     <div class="card">
 
         <div class="upload-box">
+
             <div class="upload-icon">📷</div>
+
             <h3>Upload Coffee Image</h3>
-            <p>Select an image file to preview the scanner interface.</p>
-            <input type="file" id="imageInput" accept="image/*">
+
+            <p>
+                Select a JPG, JPEG, PNG, or WEBP image.
+            </p>
+
+            <input
+                type="file"
+                id="imageInput"
+                accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+            >
+
             <div id="previewContainer"></div>
+
         </div>
 
-        <button class="btn" onclick="scanImage()">Analyze Image</button>
-        <button class="btn btn-light" onclick="resetScanner()">Reset</button>
+        <button
+            class="btn"
+            id="analyzeButton"
+            onclick="scanImage()"
+        >
+            Analyze Image
+        </button>
 
-        <div id="scanResult"></div>
+        <button
+            class="btn btn-light"
+            onclick="resetScanner()"
+        >
+            Reset
+        </button>
+
+        <div id="scanResult" aria-live="polite"></div>
 
     </div>
 
     <div class="card" style="margin-top:20px">
-        <h3 style="margin-bottom:10px">Scanner Information</h3>
+
+        <h3 style="margin-bottom:10px">
+            Scanner Information
+        </h3>
+
         <p class="note">
-            This GitHub Pages version is a frontend demonstration.
-            The uploaded image is previewed locally in your browser.
-            Classification results shown in demo mode are randomly generated
-            and are not predictions from the trained YOLOv8 model.
+            PHOTO COFFEE uses a trained YOLOv8 Segmentation model
+            to identify Arabika, Robusta, Ekselsa, and Liberika
+            coffee beans from uploaded images.
+            Detection results are generated by the connected
+            model through the Flask backend.
         </p>
+
     </div>
 
 </section>
@@ -817,7 +935,10 @@ input[type="file"] {
 <section id="analytics" class="page">
 
     <h1>Analytics</h1>
-    <p class="subtitle">Visual overview of coffee classification categories.</p>
+
+    <p class="subtitle">
+        Visual overview of coffee classification categories.
+    </p>
 
     <div class="grid grid-4" style="margin-bottom:25px">
 
@@ -827,7 +948,7 @@ input[type="file"] {
         </div>
 
         <div class="card">
-            <div class="metric-label">Model Concept</div>
+            <div class="metric-label">Model</div>
             <div class="metric-value">YOLOv8</div>
         </div>
 
@@ -844,32 +965,54 @@ input[type="file"] {
     </div>
 
     <div class="card">
+
         <h2 class="section-title">Coffee Categories</h2>
 
         <div class="bar-row">
-            <div class="bar-label"><span>Arabika</span><span>Class 01</span></div>
-            <div class="bar"><div class="bar-fill" style="width:85%"></div></div>
+            <div class="bar-label">
+                <span>Arabika</span>
+                <span>Class 01</span>
+            </div>
+            <div class="bar">
+                <div class="bar-fill" style="width:85%"></div>
+            </div>
         </div>
 
         <div class="bar-row">
-            <div class="bar-label"><span>Ekselsa</span><span>Class 02</span></div>
-            <div class="bar"><div class="bar-fill" style="width:70%"></div></div>
+            <div class="bar-label">
+                <span>Ekselsa</span>
+                <span>Class 02</span>
+            </div>
+            <div class="bar">
+                <div class="bar-fill" style="width:70%"></div>
+            </div>
         </div>
 
         <div class="bar-row">
-            <div class="bar-label"><span>Liberika</span><span>Class 03</span></div>
-            <div class="bar"><div class="bar-fill" style="width:65%"></div></div>
+            <div class="bar-label">
+                <span>Liberika</span>
+                <span>Class 03</span>
+            </div>
+            <div class="bar">
+                <div class="bar-fill" style="width:65%"></div>
+            </div>
         </div>
 
         <div class="bar-row">
-            <div class="bar-label"><span>Robusta</span><span>Class 04</span></div>
-            <div class="bar"><div class="bar-fill" style="width:80%"></div></div>
+            <div class="bar-label">
+                <span>Robusta</span>
+                <span>Class 04</span>
+            </div>
+            <div class="bar">
+                <div class="bar-fill" style="width:80%"></div>
+            </div>
         </div>
 
         <p class="note">
-            The visual bars above are illustrative UI elements, not model
-            evaluation metrics or measured class performance.
+            The visual bars above are illustrative interface elements.
+            They do not represent actual model accuracy or evaluation metrics.
         </p>
+
     </div>
 
 </section>
@@ -878,15 +1021,24 @@ input[type="file"] {
 <section id="history" class="page">
 
     <h1>Detection History</h1>
-    <p class="subtitle">Recent images analyzed during this browser session.</p>
+
+    <p class="subtitle">
+        Recent images analyzed during this browser session.
+    </p>
 
     <div class="card">
 
         <div id="historyContent">
-            <p class="note">No images have been analyzed during this session.</p>
+            <p class="note">
+                No images have been analyzed during this session.
+            </p>
         </div>
 
-        <button class="btn btn-light" onclick="clearHistory()" style="margin-top:20px">
+        <button
+            class="btn btn-light"
+            onclick="clearHistory()"
+            style="margin-top:20px"
+        >
             Clear History
         </button>
 
@@ -898,14 +1050,17 @@ input[type="file"] {
 <section id="about" class="page">
 
     <h1>About System</h1>
-    <p class="subtitle">An introduction to the PHOTO COFFEE project.</p>
+
+    <p class="subtitle">
+        An introduction to the PHOTO COFFEE project.
+    </p>
 
     <div class="card about-box">
 
         <h2 class="section-title">PHOTO COFFEE</h2>
 
         <p>
-            PHOTO COFFEE is a coffee identification system concept developed
+            PHOTO COFFEE is a coffee identification system developed
             using digital image processing, computer vision, and deep learning.
             The project focuses on visual identification of coffee bean varieties.
         </p>
@@ -913,8 +1068,8 @@ input[type="file"] {
         <h3>Research Objective</h3>
 
         <p>
-            To explore the development of a computer vision-based system for
-            identifying Arabika, Ekselsa, Liberika, and Robusta coffee beans
+            To develop a computer vision-based system for identifying
+            Arabika, Ekselsa, Liberika, and Robusta coffee beans
             through digital images.
         </p>
 
@@ -928,7 +1083,7 @@ input[type="file"] {
 
         <p>
             Python, YOLOv8 Segmentation, Digital Image Processing,
-            Computer Vision, and Web Interface.
+            Computer Vision, Flask, and Web Interface.
         </p>
 
         <h3>Research Development</h3>
@@ -953,7 +1108,10 @@ input[type="file"] {
 
 <script>
 
-/* Navigation */
+/* =========================================
+   NAVIGATION
+========================================= */
+
 function navigate(page, element) {
 
     document.querySelectorAll('.page').forEach(function(p) {
@@ -973,10 +1131,15 @@ function navigate(page, element) {
     document.getElementById('breadcrumb').textContent =
         page.replace('-', ' ').toUpperCase();
 
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+    });
 }
 
+
 function navigateById(page) {
+
     const navItems = document.querySelectorAll('.nav-item');
 
     navItems.forEach(function(item) {
@@ -992,125 +1155,537 @@ function navigateById(page) {
     document.getElementById('breadcrumb').textContent =
         page.toUpperCase();
 
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+    });
 }
 
-/* Image preview */
+
+/* =========================================
+   IMAGE PREVIEW
+========================================= */
+
 const imageInput = document.getElementById('imageInput');
 
+let selectedFile = null;
+let previewURL = null;
+
+
+// Memeriksa gambar yang dipilih
 imageInput.addEventListener('change', function(event) {
 
     const file = event.target.files[0];
 
-    if (!file) return;
-
-    const reader = new FileReader();
-
-    reader.onload = function(e) {
-
-        document.getElementById('previewContainer').innerHTML = `
-            <img src="${e.target.result}" class="preview" id="previewImage">
-        `;
-
-        document.getElementById('scanResult').innerHTML = '';
-
-    };
-
-    reader.readAsDataURL(file);
-});
-
-/* Demonstration scanner */
-function scanImage() {
-
-    const file = imageInput.files[0];
-
     if (!file) {
-        alert('Please upload an image first.');
         return;
     }
 
-    const classes = ['Arabika', 'Ekselsa', 'Liberika', 'Robusta'];
+    const allowedTypes = [
+        'image/jpeg',
+        'image/png',
+        'image/webp'
+    ];
 
-    const randomClass = classes[Math.floor(Math.random() * classes.length)];
+    if (!allowedTypes.includes(file.type)) {
 
-    const confidence = (80 + Math.random() * 19).toFixed(2);
+        alert('Please select a JPG, JPEG, PNG, or WEBP image.');
 
-    document.getElementById('scanResult').innerHTML = `
-        <div class="result-box">
-            <div class="metric-label">DEMO RESULT · NOT AI PREDICTION</div>
-            <div class="result-class">${randomClass}</div>
-            <div>Illustrative score: ${confidence}%</div>
+        imageInput.value = '';
+        selectedFile = null;
 
-            <div class="confidence-bar">
-                <div class="confidence-fill" style="width:${confidence}%"></div>
-            </div>
+        return;
+    }
 
-            <p class="note">
-                This result is randomly generated for interface demonstration.
-            </p>
+    // Memeriksa ukuran gambar maksimal 10 MB
+    if (file.size > 10 * 1024 * 1024) {
+
+        alert('Image size must not exceed 10 MB.');
+
+        imageInput.value = '';
+        selectedFile = null;
+
+        return;
+    }
+
+    selectedFile = file;
+
+    // Menghapus URL preview sebelumnya
+    if (previewURL) {
+        URL.revokeObjectURL(previewURL);
+    }
+
+    // Membuat preview gambar
+    previewURL = URL.createObjectURL(file);
+
+    document.getElementById('previewContainer').innerHTML = `
+        <img
+            src="${previewURL}"
+            class="preview"
+            alt="Coffee image preview"
+        >
+    `;
+
+    // Menghapus hasil analisis sebelumnya
+    document.getElementById('scanResult').innerHTML = '';
+
+});
+
+
+/* =========================================
+   HELPER FUNCTIONS
+========================================= */
+
+// Mengamankan teks sebelum dimasukkan ke HTML
+function escapeHTML(value) {
+
+    return String(value ?? '').replace(/[&<>"']/g, function(char) {
+
+        const entities = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        };
+
+        return entities[char];
+    });
+}
+
+
+// Mengambil jumlah kelas dari hasil backend
+function getClassCount(classCounts, targetName) {
+
+    const matchedKey = Object.keys(classCounts || {}).find(function(key) {
+
+        return key.toLowerCase() === targetName.toLowerCase();
+
+    });
+
+    return matchedKey !== undefined
+        ? classCounts[matchedKey]
+        : 0;
+}
+
+
+/* =========================================
+   YOLOv8 PREDICTION
+========================================= */
+
+async function scanImage() {
+
+    // Memeriksa gambar yang dipilih
+    if (!selectedFile) {
+
+        alert('Please upload an image first.');
+
+        return;
+    }
+
+    const analyzeButton = document.getElementById('analyzeButton');
+
+    const resultContainer = document.getElementById('scanResult');
+
+    // Menonaktifkan tombol selama proses prediksi
+    analyzeButton.disabled = true;
+
+    analyzeButton.textContent = 'Analyzing Image...';
+
+    // Menampilkan status pemrosesan
+    resultContainer.innerHTML = `
+        <div class="message-box message-loading">
+            Processing image using YOLOv8 Segmentation.
+            Please wait...
         </div>
     `;
 
-    saveHistory(file, randomClass, confidence);
+    try {
+
+        // Membuat FormData
+        const formData = new FormData();
+
+        // Nama field harus sama dengan backend Flask
+        formData.append('image', selectedFile);
+
+        // Mengirim gambar ke backend Flask
+        const response = await fetch('/predict', {
+
+            method: 'POST',
+
+            body: formData
+
+        });
+
+        // Mengambil respons JSON
+        const data = await response.json();
+
+        // Memeriksa keberhasilan prediksi
+        if (!response.ok || !data.success) {
+
+            throw new Error(
+                data.message || 'Prediction failed.'
+            );
+
+        }
+
+        // Mengambil jumlah objek
+        const totalObjects = data.total_objects || 0;
+
+        // Mengambil jumlah objek berdasarkan kelas
+        const classCounts = data.class_counts || {};
+
+        // Mengambil detail hasil deteksi
+        const detections = data.detections || [];
+
+        // Mengambil gambar hasil segmentasi
+        const annotatedImage = data.annotated_image;
+
+        // Memastikan gambar hasil tersedia
+        if (!annotatedImage) {
+
+            throw new Error(
+                'Annotated image was not returned by the server.'
+            );
+
+        }
+
+        // Menampilkan hasil prediksi
+        displayResults(
+            totalObjects,
+            classCounts,
+            detections,
+            annotatedImage
+        );
+
+        // Menyimpan riwayat prediksi
+        saveHistory(selectedFile, data);
+
+    } catch (error) {
+
+        console.error('Prediction error:', error);
+
+        resultContainer.innerHTML = `
+            <div class="message-box message-error">
+                <strong>Prediction Failed</strong>
+                <p>${escapeHTML(error.message)}</p>
+                <p style="margin-top:8px">
+                    Please make sure the Flask backend is running
+                    and the YOLOv8 model has been loaded correctly.
+                </p>
+            </div>
+        `;
+
+    } finally {
+
+        // Mengaktifkan kembali tombol
+        analyzeButton.disabled = false;
+
+        analyzeButton.textContent = 'Analyze Image';
+
+    }
 
 }
 
-/* Browser session history */
-function saveHistory(file, predictedClass, confidence) {
 
-    const reader = new FileReader();
+/* =========================================
+   DISPLAY PREDICTION RESULTS
+========================================= */
 
-    reader.onload = function(e) {
+function displayResults(
+    totalObjects,
+    classCounts,
+    detections,
+    annotatedImage
+) {
 
-        const entry = {
-            name: file.name,
-            image: e.target.result,
-            className: predictedClass,
-            confidence: confidence,
-            time: new Date().toLocaleString()
-        };
+    const resultContainer = document.getElementById('scanResult');
 
-        let history = JSON.parse(sessionStorage.getItem('coffeeHistory') || '[]');
+    // Mengambil jumlah masing-masing kelas
+    const arabika = getClassCount(classCounts, 'Arabika');
+
+    const robusta = getClassCount(classCounts, 'Robusta');
+
+    const ekselsa = getClassCount(classCounts, 'Ekselsa');
+
+    const liberika = getClassCount(classCounts, 'Liberika');
+
+    // Membuat tabel detail deteksi
+    let detectionRows = '';
+
+    if (detections.length > 0) {
+
+        detectionRows = detections.map(function(item, index) {
+
+            return `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${escapeHTML(item.class)}</td>
+                    <td>${Number(item.confidence).toFixed(2)}%</td>
+                </tr>
+            `;
+
+        }).join('');
+
+    } else {
+
+        detectionRows = `
+            <tr>
+                <td colspan="3" style="text-align:center">
+                    No coffee beans detected.
+                </td>
+            </tr>
+        `;
+
+    }
+
+    // Menampilkan hasil
+    resultContainer.innerHTML = `
+
+        <div class="result-box">
+
+            <div class="message-box message-success">
+                Image analysis completed successfully using
+                YOLOv8 Segmentation.
+            </div>
+
+            <h2 class="result-heading" style="margin-top:22px">
+                Prediction Results
+            </h2>
+
+            <div class="metric-label">
+                TOTAL DETECTED OBJECTS
+            </div>
+
+            <div class="result-class">
+                ${totalObjects}
+            </div>
+
+            <p class="note">
+                Total number of coffee bean objects detected
+                in the uploaded image.
+            </p>
+
+            <h3 style="margin-top:25px;margin-bottom:10px">
+                Class Distribution
+            </h3>
+
+            <div class="result-grid">
+
+                <div class="result-stat">
+                    <div class="metric-label">Arabika</div>
+                    <div class="metric-value">${arabika}</div>
+                </div>
+
+                <div class="result-stat">
+                    <div class="metric-label">Robusta</div>
+                    <div class="metric-value">${robusta}</div>
+                </div>
+
+                <div class="result-stat">
+                    <div class="metric-label">Ekselsa</div>
+                    <div class="metric-value">${ekselsa}</div>
+                </div>
+
+                <div class="result-stat">
+                    <div class="metric-label">Liberika</div>
+                    <div class="metric-value">${liberika}</div>
+                </div>
+
+            </div>
+
+            <h3 style="margin-top:30px;margin-bottom:10px">
+                Segmentation Visualization
+            </h3>
+
+            <p class="note">
+                Visualization of detected coffee beans using
+                YOLOv8 bounding boxes and segmentation masks.
+            </p>
+
+            <img
+                src="${annotatedImage}"
+                class="result-image"
+                alt="YOLOv8 segmentation result"
+            >
+
+            <h3 style="margin-top:30px;margin-bottom:10px">
+                Detection Details
+            </h3>
+
+            <div class="result-table-wrapper">
+
+                <table class="table">
+
+                    <thead>
+                        <tr>
+                            <th>No.</th>
+                            <th>Coffee Class</th>
+                            <th>Confidence</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        ${detectionRows}
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            <p class="note">
+                Confidence represents the model's confidence
+                for each detected object. It is not the same
+                as overall model accuracy.
+            </p>
+
+        </div>
+
+    `;
+
+}
+
+
+/* =========================================
+   DETECTION HISTORY
+========================================= */
+
+// Menyimpan riwayat hasil prediksi
+function saveHistory(file, data) {
+
+    const entry = {
+
+        name: file.name,
+
+        totalObjects: data.total_objects || 0,
+
+        classCounts: data.class_counts || {},
+
+        detections: data.detections || [],
+
+        time: new Date().toLocaleString()
+
+    };
+
+    try {
+
+        let history = JSON.parse(
+            sessionStorage.getItem('coffeeHistory') || '[]'
+        );
 
         history.unshift(entry);
 
+        // Membatasi riwayat maksimal 10 analisis
         history = history.slice(0, 10);
 
-        sessionStorage.setItem('coffeeHistory', JSON.stringify(history));
+        sessionStorage.setItem(
+            'coffeeHistory',
+            JSON.stringify(history)
+        );
 
         renderHistory();
-    };
 
-    reader.readAsDataURL(file);
+    } catch (error) {
+
+        console.error('History storage error:', error);
+
+    }
+
 }
 
+
+// Menampilkan riwayat prediksi
 function renderHistory() {
 
-    const history = JSON.parse(sessionStorage.getItem('coffeeHistory') || '[]');
+    const history = JSON.parse(
+        sessionStorage.getItem('coffeeHistory') || '[]'
+    );
 
     const container = document.getElementById('historyContent');
 
     if (history.length === 0) {
-        container.innerHTML = '<p class="note">No images analyzed during this session.</p>';
+
+        container.innerHTML = `
+            <p class="note">
+                No images have been analyzed during this session.
+            </p>
+        `;
+
         return;
     }
 
-    container.innerHTML = history.map(function(item) {
+    container.innerHTML = history.map(function(item, index) {
+
+        const counts = item.classCounts || {};
 
         return `
-            <div style="display:flex;gap:15px;align-items:center;padding:15px 0;border-bottom:1px solid var(--line)">
-                <img src="${item.image}" style="width:75px;height:75px;object-fit:cover;border-radius:10px">
-                <div>
-                    <strong>${item.name}</strong>
-                    <p style="font-size:12px;margin-top:6px">Demo class: ${item.className}</p>
-                    <p style="font-size:11px;color:var(--muted);margin-top:4px">${item.confidence}% · ${item.time}</p>
+
+            <div style="
+                padding:18px 0;
+                border-bottom:1px solid var(--line)
+            ">
+
+                <div style="
+                    display:flex;
+                    justify-content:space-between;
+                    gap:12px;
+                    flex-wrap:wrap
+                ">
+
+                    <div>
+
+                        <strong>
+                            ${index + 1}. ${escapeHTML(item.name)}
+                        </strong>
+
+                        <p style="
+                            font-size:12px;
+                            margin-top:8px
+                        ">
+                            Total detected objects:
+                            <strong>${item.totalObjects}</strong>
+                        </p>
+
+                        <p style="
+                            font-size:12px;
+                            margin-top:6px
+                        ">
+                            Arabika: ${getClassCount(counts, 'Arabika')}
+                            |
+                            Robusta: ${getClassCount(counts, 'Robusta')}
+                        </p>
+
+                        <p style="
+                            font-size:12px;
+                            margin-top:5px
+                        ">
+                            Ekselsa: ${getClassCount(counts, 'Ekselsa')}
+                            |
+                            Liberika: ${getClassCount(counts, 'Liberika')}
+                        </p>
+
+                        <p style="
+                            font-size:11px;
+                            color:var(--muted);
+                            margin-top:8px
+                        ">
+                            ${escapeHTML(item.time)}
+                        </p>
+
+                    </div>
+
                 </div>
+
             </div>
+
         `;
 
     }).join('');
+
 }
 
+
+// Menghapus riwayat prediksi
 function clearHistory() {
 
     sessionStorage.removeItem('coffeeHistory');
@@ -1119,17 +1694,49 @@ function clearHistory() {
 
 }
 
+
+/* =========================================
+   RESET SCANNER
+========================================= */
+
 function resetScanner() {
 
+    // Mengosongkan input file
     imageInput.value = '';
 
+    // Menghapus file yang dipilih
+    selectedFile = null;
+
+    // Menghapus URL preview
+    if (previewURL) {
+
+        URL.revokeObjectURL(previewURL);
+
+        previewURL = null;
+
+    }
+
+    // Menghapus preview gambar
     document.getElementById('previewContainer').innerHTML = '';
 
+    // Menghapus hasil prediksi
     document.getElementById('scanResult').innerHTML = '';
+
+    // Mengaktifkan tombol analisis
+    const analyzeButton = document.getElementById('analyzeButton');
+
+    analyzeButton.disabled = false;
+
+    analyzeButton.textContent = 'Analyze Image';
 
 }
 
-/* Initialize history */
+
+/* =========================================
+   INITIALIZE APPLICATION
+========================================= */
+
+// Menampilkan history ketika halaman dibuka
 renderHistory();
 
 </script>
